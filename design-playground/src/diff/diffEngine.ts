@@ -13,25 +13,33 @@ export interface ScreenDiff {
   nodeChanges: NodeChange[]; structural: StructuralChange[];
 }
 
-function flatten(node: WidgetNode, parent: string | null, out: Map<string, { node: WidgetNode; parent: string | null }>): void {
-  out.set(node.id, { node, parent });
-  (node.children ?? []).forEach((c) => flatten(c, node.id, out));
+interface FlatEntry { node: WidgetNode; parent: string | null; index: number; }
+
+function flatten(node: WidgetNode, parent: string | null, index: number, out: Map<string, FlatEntry>): void {
+  out.set(node.id, { node, parent, index });
+  (node.children ?? []).forEach((c, i) => flatten(c, node.id, i, out));
 }
 
 export function diffScreens(base: ScreenModel, edited: ScreenModel): ScreenDiff {
-  const baseMap = new Map<string, { node: WidgetNode; parent: string | null }>();
-  const editMap = new Map<string, { node: WidgetNode; parent: string | null }>();
-  flatten(base.root, null, baseMap);
-  flatten(edited.root, null, editMap);
+  const baseMap = new Map<string, FlatEntry>();
+  const editMap = new Map<string, FlatEntry>();
+  flatten(base.root, null, 0, baseMap);
+  flatten(edited.root, null, 0, editMap);
 
   const nodeChanges: NodeChange[] = [];
   const structural: StructuralChange[] = [];
 
   for (const [id, { node }] of editMap) {
+    const cur = editMap.get(id)!;
     const prev = baseMap.get(id);
-    if (!prev) { structural.push({ op: 'add', id, parent: editMap.get(id)!.parent ?? undefined }); continue; }
-    if (prev.parent !== editMap.get(id)!.parent) {
-      structural.push({ op: 'move', id, parent: editMap.get(id)!.parent ?? undefined });
+    if (!prev) {
+      // NOTE: a node that moved out of a since-deleted parent is reported as 'add', not 'move' (accepted limitation).
+      structural.push({ op: 'add', id, parent: cur.parent ?? undefined, index: cur.index });
+      continue;
+    }
+    if (prev.parent !== cur.parent || prev.index !== cur.index) {
+      // Parent changed, or same parent but position changed (sibling reorder).
+      structural.push({ op: 'move', id, parent: cur.parent ?? undefined, index: cur.index });
     }
     const keys = new Set([...Object.keys(prev.node.props), ...Object.keys(node.props)]);
     for (const key of keys) {

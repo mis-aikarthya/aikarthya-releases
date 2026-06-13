@@ -25,4 +25,13 @@ describe('diffScreens', () => {
     const d = diffScreens(base, edited);
     expect(d.structural).toContainEqual(expect.objectContaining({ op: 'remove', id: 'gone' }));
   });
+  it('detects a sibling reorder under the same parent', () => {
+    const edited = structuredClone(base);
+    // base children: [btn (0), gone (1)] -> swap to [gone (0), btn (1)]
+    edited.root.children = [edited.root.children![1], edited.root.children![0]];
+    const d = diffScreens(base, edited);
+    expect(d.structural).toContainEqual(
+      expect.objectContaining({ op: 'move', id: 'btn', parent: 'root', index: 1 }),
+    );
+  });
 });
