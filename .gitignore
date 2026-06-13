@@ -3,6 +3,7 @@ design-playground/node_modules/
 design-playground/dist/
 design-playground/.vite/
 design-playground/exports/
+design-playground/tsconfig.tsbuildinfo
 
 # OS / editor
 .DS_Store
