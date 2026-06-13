@@ -1,0 +1,25 @@
+import type { WidgetSchema } from '../descriptor';
+
+export const containerSchema: WidgetSchema = [
+  { key: 'color', label: 'Background', group: 'Style', control: 'color', default: '#FFFFFF',
+    flutter: { target: 'Container.decoration.color' } },
+  { key: 'borderRadius', label: 'Corner radius', group: 'Style', control: 'number', min: 0,
+    step: 1, default: 0, flutter: { target: 'BoxDecoration.borderRadius' } },
+  { key: 'borderColor', label: 'Border color', group: 'Style', control: 'color',
+    default: '#00000000', flutter: { target: 'Border.all.color' } },
+  { key: 'borderWidth', label: 'Border width', group: 'Style', control: 'number', min: 0,
+    step: 1, default: 0, flutter: { target: 'Border.all.width' } },
+  { key: 'shadow', label: 'Shadow', group: 'Style', control: 'dropdown',
+    options: ['none', 'low', 'medium', 'high'], default: 'none',
+    flutter: { target: 'BoxDecoration.boxShadow' } },
+  { key: 'padding', label: 'Padding', group: 'Layout', control: 'paddingBox', default: 0,
+    flutter: { target: 'Container.padding' } },
+  { key: 'margin', label: 'Margin', group: 'Layout', control: 'paddingBox', default: 0,
+    flutter: { target: 'Container.margin' } },
+  { key: 'width', label: 'Width', group: 'Layout', control: 'number', min: 0, step: 1,
+    default: 0, responsive: true, flutter: { target: 'Container.width', note: '0 = auto' } },
+  { key: 'height', label: 'Height', group: 'Layout', control: 'number', min: 0, step: 1,
+    default: 0, responsive: true, flutter: { target: 'Container.height', note: '0 = auto' } },
+  { key: 'alignment', label: 'Align child', group: 'Layout', control: 'alignmentGrid',
+    default: 'topLeft', flutter: { target: 'Container.alignment' } },
+];
