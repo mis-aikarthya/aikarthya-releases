@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import type { WidgetNode, Theme } from '@/model/types';
-import { flexStyle, containerStyle } from './styleMap';
+import { flexStyle, containerStyle, paddingCss } from './styleMap';
 
 interface Props { node: WidgetNode; theme: Theme; selectedId: string | null; onSelect: (id: string) => void; }
 
@@ -47,6 +47,19 @@ export function RenderNode({ node, theme, selectedId, onSelect }: Props): JSX.El
       return <input ref={setNodeRef} placeholder={String(p.hint ?? '')} onClick={click}
         style={{ ...ring, background: p.fillColor as string, borderRadius: `${p.borderRadius}px`,
           border: 'none', padding: '12px 16px' }} />;
+    case 'Stack':
+      return <div ref={setNodeRef} style={{ position: 'relative', ...ring }} onClick={click}>{kids}</div>;
+    case 'ListView': {
+      const horizontal = p.axis === 'horizontal';
+      return <div ref={setNodeRef} onClick={click}
+        style={{ display: 'flex', flexDirection: horizontal ? 'row' : 'column',
+          gap: `${(p.spacing as number) ?? 0}px`, overflow: 'auto', padding: paddingCss(p.padding), ...ring }}>{kids}</div>;
+    }
+    case 'GridView':
+      return <div ref={setNodeRef} onClick={click}
+        style={{ display: 'grid', gridTemplateColumns: `repeat(${(p.crossAxisCount as number) ?? 2}, 1fr)`,
+          rowGap: `${(p.mainAxisSpacing as number) ?? 8}px`, columnGap: `${(p.crossAxisSpacing as number) ?? 8}px`,
+          padding: paddingCss(p.padding), ...ring }}>{kids}</div>;
     default:
       return <div ref={setNodeRef} style={ring} onClick={click}>{kids}</div>;
   }

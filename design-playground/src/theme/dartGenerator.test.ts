@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateAppColors } from './dartGenerator';
+import { generateAppColors, generateAppTypography } from './dartGenerator';
 import { defaultTheme } from './defaultTheme';
 
 describe('generateAppColors', () => {
@@ -10,5 +10,18 @@ describe('generateAppColors', () => {
   it('preserves explicit alpha from #AARRGGBB', () => {
     const out = generateAppColors({ ...defaultTheme, colors: { scrim: '#80000000' } });
     expect(out).toContain('static const Color scrim = Color(0x80000000);');
+  });
+});
+
+describe('generateAppTypography', () => {
+  it('emits a GoogleFonts getter for display', () => {
+    const out = generateAppTypography(defaultTheme);
+    expect(out).toContain('static TextStyle get display => GoogleFonts.poppins(');
+    expect(out).toContain('fontWeight: FontWeight.w800');
+  });
+  it('uses montserrat for labelCaps and includes letterSpacing', () => {
+    const out = generateAppTypography(defaultTheme);
+    expect(out).toContain('GoogleFonts.montserrat(');
+    expect(out).toContain('letterSpacing: 0.66');
   });
 });

@@ -2,7 +2,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { useEditor } from '@/store/editorStore';
 import type { WidgetType } from '@/model/types';
 
-const ITEMS: WidgetType[] = ['Container', 'Row', 'Column', 'Text', 'Icon', 'Button', 'Image', 'Input'];
+const ITEMS: WidgetType[] = ['Container', 'Row', 'Column', 'Stack', 'ListView', 'GridView', 'Text', 'Icon', 'Button', 'Image', 'Input'];
 
 function PaletteItem({ t, parent }: { t: WidgetType; parent: string | null }) {
   const { addNode } = useEditor();

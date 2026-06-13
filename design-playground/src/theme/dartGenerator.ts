@@ -13,3 +13,19 @@ export function generateAppColors(theme: Theme): string {
   );
   return ['abstract final class AppColors {', ...lines, '}'].join('\n');
 }
+
+const FAMILY_FN: Record<string, string> = { Poppins: 'poppins', Montserrat: 'montserrat' };
+
+export function generateAppTypography(theme: Theme): string {
+  const entries = Object.entries(theme.typography).map(([name, t]) => {
+    const fn = FAMILY_FN[t.fontFamily] ?? 'poppins';
+    const parts = [
+      `fontSize: ${t.fontSize}`,
+      `height: ${t.height ?? 1.2}`,
+      `fontWeight: FontWeight.w${t.fontWeight}`,
+    ];
+    if (t.letterSpacing != null) parts.push(`letterSpacing: ${t.letterSpacing}`);
+    return `  static TextStyle get ${name} => GoogleFonts.${fn}(\n    ${parts.join(',\n    ')},\n  );`;
+  });
+  return ['abstract final class AppTypography {', ...entries, '}'].join('\n');
+}

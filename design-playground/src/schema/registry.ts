@@ -7,6 +7,9 @@ import { iconSchema } from './widgets/icon';
 import { buttonSchema } from './widgets/button';
 import { imageSchema } from './widgets/image';
 import { inputSchema } from './widgets/input';
+import { stackSchema } from './widgets/stack';
+import { listViewSchema } from './widgets/listview';
+import { gridViewSchema } from './widgets/gridview';
 
 const TABLE: SchemaTable = {
   Text: textSchema,
@@ -17,6 +20,9 @@ const TABLE: SchemaTable = {
   Button: buttonSchema,
   Image: imageSchema,
   Input: inputSchema,
+  Stack: stackSchema,
+  ListView: listViewSchema,
+  GridView: gridViewSchema,
 };
 
 export function getDescriptors(type: WidgetType): PropDescriptor[] {
