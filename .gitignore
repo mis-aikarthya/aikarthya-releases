@@ -1,0 +1,12 @@
+# Node / Vite (design-playground)
+design-playground/node_modules/
+design-playground/dist/
+design-playground/.vite/
+design-playground/exports/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Nested Flutter app keeps its own repo
+aikarthya-field-ops-app/
