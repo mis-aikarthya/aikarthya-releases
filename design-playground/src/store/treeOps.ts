@@ -26,7 +26,8 @@ export function removeNode(node: WidgetNode, id: string): WidgetNode {
 export function insertChild(node: WidgetNode, parentId: string, child: WidgetNode, index: number): WidgetNode {
   if (node.id === parentId) {
     const children = [...(node.children ?? [])];
-    children.splice(index, 0, child);
+    const safeIndex = Math.max(0, Math.min(index, children.length));
+    children.splice(safeIndex, 0, child);
     return { ...node, children };
   }
   if (!node.children) return node;

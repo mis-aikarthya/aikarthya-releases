@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import { nanoid } from 'nanoid';
 import type { ScreenModel, WidgetNode, WidgetType } from '@/model/types';
-import { updateProps, removeNode, insertChild } from './treeOps';
+import { findNode, updateProps, removeNode, insertChild } from './treeOps';
 import { defaultProps } from '@/schema/defaults';
+
+const CONTAINER_TYPES = new Set<WidgetType>([
+  'Container', 'Row', 'Column', 'Stack', 'ListView', 'GridView', 'ComponentInstance',
+]);
 
 interface EditorState {
   screen: ScreenModel | null;
@@ -20,8 +24,8 @@ interface EditorState {
   redo: () => void;
 }
 
-function commit(state: EditorState, next: ScreenModel): Partial<EditorState> {
-  return { past: [...state.past, state.screen!], future: [], screen: next };
+function commit(state: EditorState, current: ScreenModel, next: ScreenModel): Partial<EditorState> {
+  return { past: [...state.past, current], future: [], screen: next };
 }
 
 export const useEditor = create<EditorState>((set, get) => ({
@@ -35,31 +39,32 @@ export const useEditor = create<EditorState>((set, get) => ({
   select: (id) => set({ selectedId: id }),
   setProp: (id, patch) => {
     const st = get();
-    if (!st.screen) return;
-    set(commit(st, { ...st.screen, root: updateProps(st.screen.root, id, patch) }));
+    if (!st.screen || !findNode(st.screen.root, id)) return;
+    set(commit(st, st.screen, { ...st.screen, root: updateProps(st.screen.root, id, patch) }));
   },
   addNode: (parentId, type, index) => {
     const st = get();
     if (!st.screen) return;
-    const node: WidgetNode = { id: nanoid(6), type, props: defaultProps(type), children: [] };
-    set(commit(st, { ...st.screen, root: insertChild(st.screen.root, parentId, node, index) }));
+    const node: WidgetNode = {
+      id: nanoid(6), type, props: defaultProps(type),
+      ...(CONTAINER_TYPES.has(type) ? { children: [] } : {}),
+    };
+    set(commit(st, st.screen, { ...st.screen, root: insertChild(st.screen.root, parentId, node, index) }));
   },
   deleteNode: (id) => {
     const st = get();
     if (!st.screen) return;
-    set({ ...commit(st, { ...st.screen, root: removeNode(st.screen.root, id) }), selectedId: null });
+    if (id === st.screen.root.id) return;
+    set({ ...commit(st, st.screen, { ...st.screen, root: removeNode(st.screen.root, id) }), selectedId: null });
   },
   moveNode: (id, newParentId, index) => {
     const st = get();
     if (!st.screen) return;
-    let moved: WidgetNode | undefined;
-    const find = (n: WidgetNode): void => {
-      for (const c of n.children ?? []) { if (c.id === id) moved = c; else find(c); }
-    };
-    find(st.screen.root);
+    const moved = findNode(st.screen.root, id);
     if (!moved) return;
+    if (moved.id === newParentId || findNode(moved, newParentId)) return; // no-op: would create a cycle / lose the node
     const without = removeNode(st.screen.root, id);
-    set(commit(st, { ...st.screen, root: insertChild(without, newParentId, moved, index) }));
+    set(commit(st, st.screen, { ...st.screen, root: insertChild(without, newParentId, moved, index) }));
   },
   undo: () => {
     const st = get();
