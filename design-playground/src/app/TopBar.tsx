@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useEditor } from '@/store/editorStore';
 import { diffScreens } from '@/diff/diffEngine';
 import { toMarkdown } from '@/diff/reportWriter';
@@ -8,7 +7,6 @@ const VIEWPORTS: Viewport[] = ['mobile', 'tablet', 'desktop', 'wide'];
 
 export function TopBar({ viewport, setViewport }: { viewport: Viewport; setViewport: (v: Viewport) => void }) {
   const { screen, baseline, undo, redo } = useEditor();
-  const [, setTick] = useState(0);
 
   function exportReport() {
     if (!screen || !baseline) return;
@@ -17,7 +15,6 @@ export function TopBar({ viewport, setViewport }: { viewport: Viewport; setViewp
     download('changes.json', JSON.stringify(diff, null, 2));
     download('changes.md', md);
     download('target.json', JSON.stringify(screen, null, 2));
-    setTick((t) => t + 1);
   }
 
   return (

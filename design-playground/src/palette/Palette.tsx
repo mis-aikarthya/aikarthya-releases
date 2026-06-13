@@ -12,7 +12,6 @@ function PaletteItem({ t, parent }: { t: WidgetType; parent: string | null }) {
   });
   return (
     <button
-      key={t}
       ref={setNodeRef}
       {...listeners}
       {...attributes}

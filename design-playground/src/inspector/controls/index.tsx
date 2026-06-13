@@ -20,13 +20,18 @@ export function Control({ descriptor, value, onChange }: CProps) {
           {(d.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
       );
-    case 'color':
+    case 'color': {
+      // react-colorful handles #RRGGBB only; strip a leading #AARRGGBB alpha for display.
+      // NOTE: alpha editing is deferred (our stored alpha convention is #AARRGGBB, alpha-first).
+      const raw = String(value ?? '#000000');
+      const hex6 = raw.replace(/^#([0-9a-fA-F]{2})([0-9a-fA-F]{6})$/, '#$2');
       return (
         <div>
-          <HexColorPicker color={String(value ?? '#000000')} onChange={onChange} />
-          <HexColorInput color={String(value ?? '#000000')} onChange={onChange} prefixed />
+          <HexColorPicker color={hex6} onChange={onChange} />
+          <HexColorInput color={hex6} onChange={onChange} prefixed />
         </div>
       );
+    }
     case 'paddingBox':
       return <input type="number" min={0} value={Number(value ?? 0)}
         onChange={(e) => onChange(Number(e.target.value))} />;

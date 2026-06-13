@@ -12,10 +12,8 @@ export function RenderNode({ node, theme, selectedId, onSelect }: Props): JSX.El
   const p = node.props;
   const sel = node.id === selectedId;
   const ring: React.CSSProperties = sel
-    ? { outline: '2px solid #62D4FF', outlineOffset: '1px' }
-    : isOver
-    ? { outline: '2px dashed #62D4FF' }
-    : {};
+    ? { outline: '2px solid ' + (isOver ? '#FFB960' : '#62D4FF'), outlineOffset: '1px' }
+    : isOver ? { outline: '2px dashed #62D4FF' } : {};
   const click = (e: React.MouseEvent) => { e.stopPropagation(); onSelect(node.id); };
   const kids = (node.children ?? []).map((c) => (
     <RenderNode key={c.id} node={c} theme={theme} selectedId={selectedId} onSelect={onSelect} />

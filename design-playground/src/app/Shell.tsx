@@ -3,6 +3,7 @@ import { DndContext } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import type { Viewport, WidgetType } from '@/model/types';
 import { useEditor } from '@/store/editorStore';
+import { findNode } from '@/store/treeOps';
 import { defaultTheme } from '@/theme/defaultTheme';
 import { Palette } from '@/palette/Palette';
 import { WidgetTree } from '@/tree/WidgetTree';
@@ -11,14 +12,22 @@ import { TopBar } from './TopBar';
 import { RenderNode } from '@/renderer/renderNode';
 import { ViewportFrame } from '@/renderer/viewportFrame';
 
+const CONTAINER_TYPES = new Set<WidgetType>([
+  'Container', 'Row', 'Column', 'Stack', 'ListView', 'GridView', 'ComponentInstance',
+]);
+
 export function Shell() {
   const [viewport, setViewport] = useState<Viewport>('mobile');
-  const { screen, selectedId, select, addNode, moveNode } = useEditor();
+  const { screen, selectedId, select, addNode } = useEditor();
 
   function onDragEnd(e: DragEndEvent) {
     const pal = e.active.data.current?.paletteType as string | undefined;
-    if (pal && e.over) { addNode(String(e.over.id), pal as WidgetType, 0); return; }
-    if (e.over && e.active.id !== e.over.id) { moveNode(String(e.active.id), String(e.over.id), 0); }
+    if (pal && e.over && screen) {
+      const target = findNode(screen.root, String(e.over.id));
+      if (!target || !CONTAINER_TYPES.has(target.type)) return; // reject drop onto a leaf widget
+      addNode(String(e.over.id), pal as WidgetType, 0);
+    }
+    // TODO(M9): drag-to-reorder/reparent in the tree & canvas is wired in the catalog-expansion milestone.
   }
 
   return (
