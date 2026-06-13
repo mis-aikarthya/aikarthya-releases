@@ -17,4 +17,15 @@ describe('toMarkdown', () => {
     expect(md).toContain('FilledButton.style.shape.borderRadius');
     expect(md).toContain('remove');
   });
+  it('renders _none_ in both sections for an empty diff', () => {
+    const empty: ScreenDiff = {
+      screen: 'blank', sourceDartPath: 'blank.dart',
+      nodeChanges: [], structural: [],
+    };
+    const md = toMarkdown(empty);
+    expect(md).toContain('## Property changes');
+    expect(md).toContain('## Structural changes');
+    // _none_ should appear once under each section.
+    expect(md.match(/_none_/g)).toHaveLength(2);
+  });
 });

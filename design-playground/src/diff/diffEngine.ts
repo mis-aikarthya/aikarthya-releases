@@ -20,6 +20,12 @@ function flatten(node: WidgetNode, parent: string | null, index: number, out: Ma
   (node.children ?? []).forEach((c, i) => flatten(c, node.id, i, out));
 }
 
+function propsEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
 export function diffScreens(base: ScreenModel, edited: ScreenModel): ScreenDiff {
   const baseMap = new Map<string, FlatEntry>();
   const editMap = new Map<string, FlatEntry>();
@@ -29,21 +35,20 @@ export function diffScreens(base: ScreenModel, edited: ScreenModel): ScreenDiff 
   const nodeChanges: NodeChange[] = [];
   const structural: StructuralChange[] = [];
 
-  for (const [id, { node }] of editMap) {
-    const cur = editMap.get(id)!;
+  for (const [id, { node, parent, index }] of editMap) {
     const prev = baseMap.get(id);
     if (!prev) {
       // NOTE: a node that moved out of a since-deleted parent is reported as 'add', not 'move' (accepted limitation).
-      structural.push({ op: 'add', id, parent: cur.parent ?? undefined, index: cur.index });
+      structural.push({ op: 'add', id, parent: parent ?? undefined, index });
       continue;
     }
-    if (prev.parent !== cur.parent || prev.index !== cur.index) {
+    if (prev.parent !== parent || prev.index !== index) {
       // Parent changed, or same parent but position changed (sibling reorder).
-      structural.push({ op: 'move', id, parent: cur.parent ?? undefined, index: cur.index });
+      structural.push({ op: 'move', id, parent: parent ?? undefined, index });
     }
     const keys = new Set([...Object.keys(prev.node.props), ...Object.keys(node.props)]);
     for (const key of keys) {
-      if (prev.node.props[key] !== node.props[key]) {
+      if (!propsEqual(prev.node.props[key], node.props[key])) {
         nodeChanges.push({
           id, type: node.type, key,
           from: prev.node.props[key], to: node.props[key],

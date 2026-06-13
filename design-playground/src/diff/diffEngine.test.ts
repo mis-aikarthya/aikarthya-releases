@@ -34,4 +34,38 @@ describe('diffScreens', () => {
       expect.objectContaining({ op: 'move', id: 'btn', parent: 'root', index: 1 }),
     );
   });
+  it('detects a cross-parent move', () => {
+    const moveBase: ScreenModel = {
+      screenName: 'm', themeMode: 'light', sourceDartPath: 'm.dart',
+      root: { id: 'root', type: 'Column', props: {}, children: [
+        { id: 'colA', type: 'Column', props: {}, children: [
+          { id: 'x', type: 'Text', props: { text: 'hi' } },
+        ] },
+        { id: 'colB', type: 'Column', props: {}, children: [] },
+      ] },
+    };
+    const edited = structuredClone(moveBase);
+    // move `x` from colA into colB
+    edited.root.children![0].children = [];
+    edited.root.children![1].children = [
+      { id: 'x', type: 'Text', props: { text: 'hi' } },
+    ];
+    const d = diffScreens(moveBase, edited);
+    expect(d.structural).toContainEqual(
+      expect.objectContaining({ op: 'move', id: 'x', parent: 'colB' }),
+    );
+  });
+  it('does not report a change for object-valued props with equal contents', () => {
+    const objBase: ScreenModel = {
+      screenName: 'o', themeMode: 'light', sourceDartPath: 'o.dart',
+      root: { id: 'root', type: 'Container', props: { padding: { top: 8, left: 8 } } },
+    };
+    const edited: ScreenModel = {
+      screenName: 'o', themeMode: 'light', sourceDartPath: 'o.dart',
+      // separate object literal with identical contents -> reference-unequal
+      root: { id: 'root', type: 'Container', props: { padding: { top: 8, left: 8 } } },
+    };
+    const d = diffScreens(objBase, edited);
+    expect(d.nodeChanges).toHaveLength(0);
+  });
 });
