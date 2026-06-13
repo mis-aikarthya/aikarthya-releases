@@ -6,6 +6,7 @@ const hex = z.string().regex(/^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/, 'must be #RRG
 export const TextStyleTokenSchema = z.object({
   fontFamily: z.string(),
   fontSize: z.number().positive(),
+  // fontWeight constrained to valid CSS/Flutter weights (stricter than the TS number type by design).
   fontWeight: z.number().int().min(100).max(900),
   height: z.number().positive().optional(),
   letterSpacing: z.number().optional(),
@@ -36,9 +37,15 @@ export const WidgetNodeSchema: z.ZodType<WidgetNode> = z.lazy(() =>
     children: z.array(WidgetNodeSchema).optional(),
     visibility: z.object({
       conditional: z.string().optional(),
-      perViewport: z.record(z.boolean()).optional(),
+      perViewport: z.object({
+        mobile: z.boolean(), tablet: z.boolean(),
+        desktop: z.boolean(), wide: z.boolean(),
+      }).partial().optional(),
     }).optional(),
-    responsiveOverrides: z.record(z.record(z.unknown())).optional(),
+    responsiveOverrides: z.object({
+      mobile: z.record(z.unknown()), tablet: z.record(z.unknown()),
+      desktop: z.record(z.unknown()), wide: z.record(z.unknown()),
+    }).partial().optional(),
     bindings: z.record(z.string()).optional(),
     componentRef: z.string().optional(),
     flutterHint: z.object({
@@ -54,3 +61,5 @@ export const ScreenModelSchema = z.object({
   root: WidgetNodeSchema,
   sourceDartPath: z.string(),
 });
+
+// ComponentDefSchema / ProjectSchema are added in a later milestone when those documents are parsed at runtime.
