@@ -1,8 +1,8 @@
 # Aikarthya Field Ops v1.0.5 — Changelog
 
 **Release Date:** 16-Jun-2026
-**Build Number:** 5
-**APK Size:** 74.8 MB
+**Build Number:** 6
+**APK Size:** 76.4 MB
 
 ## New Features
 
@@ -25,6 +25,12 @@
 ### 3. Stale APK Cleanup
 - The downloaded APK is no longer deleted immediately after launching the installer intent (the system installer reads it asynchronously). It is cleaned up at the next update-provider initialization instead.
 
+## Fixes (build 6 patch)
+
+### 4. Splash Screen Background Color Mismatch
+- The native Android launch window and in-app splash screen used slightly different background colors (`#FAFAF1` vs system white), causing visible edge lines around the splash GIF.
+- Resolution: unified the splash background to `#FEFCFE` in `AppColors.splashBackground`, updated both `cold_boot_splash.dart` and `post_login_splash.dart`, set the Android `launch_background` to the same color, and reprocessed the GIF so all background pixels are exactly `#FEFCFE`.
+
 ## Database Migrations (this release)
 
 None.
@@ -36,4 +42,4 @@ None.
 - `flutter build apk --release`: successful
 
 ---
-*Previous build: v1.0.4 (build 4, 15-Jun-2026)*
+*Previous build: v1.0.5 (build 5, 16-Jun-2026)*
