@@ -1,8 +1,8 @@
 # Aikarthya Field Ops v1.0.6 — Changelog
 
 **Release Date:** 17-Jun-2026
-**Build Number:** 7
-**APK Size:** 76.1 MB
+**Build Number:** 8
+**APK Size:** 76.2 MB
 
 ## New Features
 
@@ -14,11 +14,22 @@
 
 ## Fixes
 
-### 1. Update Dialog Flickered and Never Installed
+### 1. PF (Program Facilitator) Tab UX & Data Accuracy Improvements
+- **Home tab:** time-aware greeting (`Good morning` / `Good afternoon` / `Good evening`), empty-school state card, and staggered entrance animation for the school list.
+- **Assessment tab:** pull-to-refresh, count badges on section headers, improved error block with retry, and corrected default form status from `submitted` to `draft` so unsubmitted forms no longer appear completed.
+- **Profile tab:** pull-to-refresh, empty/error states for assigned schools, staggered school-card animation, and unimplemented quick actions (Apply Leave, Week Off, Payslips, Expenses) now disabled with "Coming soon" state.
+- **Bottom navigation:** haptic feedback on tab taps, animated cross-fade icons, smooth label/text style transitions, and a refined pill indicator using `Curves.easeOutCubic`.
+- **Cumulative observation card:** replaced hard-coded dark-blue/teal colors with theme tokens (`inverseSurface`, `inverseOnSurface`, `primaryFixedDim`) for consistency with the updated brand palette.
+- **Theme:** primary color aligned to SkillUp teal `#00A3CE` and surface-container tokens added to the `ColorScheme`.
+
+### 2. Profile Cache Isolation
+- SharedPreferences programme-name cache key now includes the profile ID so switching accounts cannot leak cached programme names across profiles.
+
+### 3. Update Dialog Flickered and Never Installed
 - Tapping "Update Now" showed a brief progress bar and then returned to the dialog with no install and no error.
 - Resolution: replace the `Dio` + `open_filex` handoff with the system `DownloadManager` + a direct package-installer intent on the downloaded content URI.
 
-### 2. Better Update Error Messages
+### 4. Better Update Error Messages
 - New friendly messages cover `DownloadManager` failures, low-storage errors, and missing install permission.
 
 ## Important Bootstrap Note
@@ -31,9 +42,9 @@ None.
 
 ## Test Coverage
 
-- 353 tests passing, 0 failures
+- `flutter test`: passing
 - `flutter analyze`: 0 issues
-- `flutter build apk --release`: successful
+- `flutter build apk --release --dart-define=APP_ENV=production`: successful
 
 ---
-*Previous build: v1.0.5 build 6 (16-Jun-2026)*
+*Previous build: v1.0.6 build 7 (17-Jun-2026)*
