@@ -21,6 +21,10 @@
 - Use one folder per release version.
 - Preserve previous release records; create a new version folder for new releases.
 - Mention test counts and `flutter analyze` status only when they were actually verified for that release.
+- Record the target environment in `SUMMARY.md`. A production release is built with
+  `--dart-define=APP_ENV=production` against the production Supabase project; staging
+  builds are for testing only and are not distributed as releases. Before building any
+  release APK, confirm production vs staging with the user (root AGENTS.md Release-build rule).
 
 ## Verification
 
