@@ -1,2 +1,4 @@
 .omc/
 .claude/
+# APKs live as GitHub release assets, never committed to the repo (93 MB binaries)
+*.apk
