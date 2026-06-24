@@ -1,0 +1,49 @@
+Prod data backup (REST) - Sun Jun 21 18:45:12 IST 2026
+ref: nuwqxlhuxwgevxvsyusj
+
+TABLE                                ROWS   HTTP
+app_settings                            1    200
+app_versions                           10    200
+attendance                             28    200
+attendance_flags                       21    200
+feedback_r1b                            0    200
+feedback_r1c                            0    200
+feedback_r2                             0    200
+form_submissions                        9    200
+form_types                              8    200
+holidays                               15    200
+issues                                  0    200
+leaves                                  0    200
+me_remarks                              0    200
+notifications                           1    200
+obs_indicators                          ?    404
+observations                           27    200
+pf_assignments                         11    200
+pf_form_access                         45    200
+profiles                               10    200
+programmes                              3    200
+registered_points                      12    200
+report_downloads                        0    200
+report_drafts                           1    200
+report_files                            1    200
+report_jobs                            24    200
+report_messages                         0    200
+report_prompts                          3    200
+report_reviews                          0    200
+report_shares                           0    200
+report_templates                        1    200
+rubric_indicators                       0    200
+rubric_scale                            0    200
+school_leader_profiles                  7    200
+school_programmes                      13    200
+schools                                11    200
+sections                                0    200
+session_teacher_attendance             65    200
+sessions                                3    200
+sync_outbox                             0    200
+teachers                              120    200
+weekly_offs                             1    200
+indian_administrative_boundaries        0    200
+
+NOTE: obs_indicators -> 404 (not a live REST table; data lives in observations columns). Skipped.
+NOTE: schema/DDL backup = aikarthya-supabase/supabase/migrations/ (version-controlled source of truth); raw PG ports (pg_dump) are blocked from this sandbox.

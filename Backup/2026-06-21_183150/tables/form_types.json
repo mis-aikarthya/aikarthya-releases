@@ -1,0 +1,8 @@
+[{"code":"skillup_offline_attendance","label":"SkillUp Offline Attendance","programme_id":"63859908-bedf-42a4-98fa-7f2df72c3713","target_kind":"school","route_name":null,"sort_order":5}, 
+ {"code":"skillup_online_attendance","label":"SkillUp Online Attendance","programme_id":"63859908-bedf-42a4-98fa-7f2df72c3713","target_kind":"school","route_name":null,"sort_order":6}, 
+ {"code":"skillup_season_records","label":"SkillUp Season Records","programme_id":"63859908-bedf-42a4-98fa-7f2df72c3713","target_kind":"school","route_name":null,"sort_order":7}, 
+ {"code":"school_profile","label":"School Profile","programme_id":null,"target_kind":"school","route_name":"schoolProfileForm","sort_order":2}, 
+ {"code":"school_leader_profile","label":"School Leader Profile","programme_id":null,"target_kind":"school_leader","route_name":"schoolLeaderForm","sort_order":3}, 
+ {"code":"teacher_profile","label":"Teacher Profile","programme_id":null,"target_kind":"teacher","route_name":"teacherFormCreate","sort_order":4}, 
+ {"code":"skillup_session","label":"SkillUp Session","programme_id":null,"target_kind":"school","route_name":"sessionFormCreate","sort_order":5}, 
+ {"code":"observation","label":"Classroom Observation","programme_id":"63859908-bedf-42a4-98fa-7f2df72c3713","target_kind":"observation","route_name":"observationFormCreate","sort_order":1}]

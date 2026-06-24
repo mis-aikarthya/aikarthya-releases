@@ -1,2 +1,11 @@
 .omc/
 .claude/
+
+# Brainstorming visual-companion mockups
+.superpowers/
+
+.claude/settings.local.json
+
+# Night Shift - local staging mgmt test login (never commit)
+NIGHT_SHIFT_SECRETS
+**/.env.local
