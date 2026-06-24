@@ -128,6 +128,16 @@ $('signout').onclick = async () => { await cleanup(); await sb.auth.signOut(); }
 
 async function cleanup() { if (channel) { await sb.removeChannel(channel); channel = null; } sessionId = null; }
 
+// Surface an OAuth failure: Supabase returns ?error=...&error_description=...
+// (or in the hash) when e.g. the Google provider isn't enabled. Without this
+// the teacher just lands back on the sign-in screen with no explanation.
+(() => {
+  const q = new URLSearchParams(location.search);
+  const h = new URLSearchParams(location.hash.slice(1));
+  const err = q.get('error_description') || h.get('error_description') || q.get('error') || h.get('error');
+  if (err) { msg($('auth-msg'), decodeURIComponent(err.replace(/\+/g, ' ')), 'err'); }
+})();
+
 // ---------- routing ----------
 // Defer out of the callback: supabase-js holds an auth lock during
 // onAuthStateChange, and awaiting a data query inside it deadlocks.
@@ -146,8 +156,8 @@ async function route(session) {
 async function initPf(user) {
   show('view-pf'); $('pf-start').classList.remove('hidden'); $('pf-dash').classList.add('hidden');
   const sel = $('pf-school');
-  sel.length = 1;
   const { data: schools } = await sb.from('schools').select('id,name').order('name');
+  sel.length = 1;   // reset AFTER await: last writer wins if route() runs concurrently
   (schools||[]).forEach(s => sel.add(new Option(s.name, s.id)));
 
   $('btn-start').onclick = async () => {
@@ -214,6 +224,7 @@ async function initTeacher(user) {
 
   const schoolSel = $('t-school'), teacherSel = $('t-teacher');
   const { data: schools } = await sb.from('schools').select('id,name').order('name');
+  schoolSel.length = 1; teacherSel.length = 1;   // reset AFTER await: last writer wins if route() runs concurrently
   (schools||[]).forEach(s => schoolSel.add(new Option(s.name, s.id)));
 
   schoolSel.onchange = async () => {
