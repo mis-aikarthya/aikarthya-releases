@@ -20,11 +20,19 @@ Everything here is protected by RLS; the anon key in `config.js` is publishable.
 - **Routing** is by `profiles.role`. A login whose profile role is in `HOST_ROLES`
   (`pf`, `me_associate`, `mgmt`) gets the facilitator view. Any other login — including
   a teacher with no profile row — gets the teacher view.
-- **PF**: enters a topic (+ optional school), which inserts a `sessions` row with
-  `mode='online'`, `attendance_open=true`. Dashboard subscribes to Realtime INSERTs
-  on `session_teacher_attendance` for that session. "Stop" sets `attendance_open=false`.
-- **Teacher**: signs in via magic link, picks school → name, submits. One submission
-  per email per session is enforced by the DB (`23505` → "already recorded").
+- **PF**: signs in with email + password (under "Facilitator sign in"), enters a
+  topic (+ optional school), which inserts a `sessions` row with `mode='online'`,
+  `attendance_open=true`. Dashboard subscribes to Realtime INSERTs on
+  `session_teacher_attendance` for that session. "Stop" sets `attendance_open=false`.
+- **Teacher**: taps **Continue with Google** — since they're already signed into
+  Google to be in the Meet, this captures their verified Gmail in one tap (no
+  password, no email link). Then picks school → name, submits. The Gmail is stored
+  as `submitted_email`; one submission per Google account per session is enforced by
+  the DB (`23505` → "already recorded").
+
+> Note: Google Meet does not expose other participants' emails to an add-on
+> (privacy). Each teacher's Gmail comes from their own Google sign-in, not by
+> harvesting the participant list.
 
 ## Run locally
 
@@ -51,11 +59,16 @@ No env vars, no secrets — the only key shipped is the publishable anon key.
 
 ## Supabase Auth settings (one-time, per environment)
 
-In **Authentication → URL Configuration**, add the deployed URL (and
-`http://localhost:4180` for testing) to **Redirect URLs**, so the magic-link
-`emailRedirectTo` lands back on the page. Confirm email sending is enabled
-(**Authentication → Providers → Email**). Magic-link delivery uses Supabase's
-default email unless an SMTP provider is configured.
+1. **Enable the Google provider** — Authentication → Providers → Google. Create an
+   OAuth 2.0 Client ID in Google Cloud (same Workspace project as the add-on),
+   set the **Authorized redirect URI** to the Supabase callback shown on that page
+   (`https://<ref>.supabase.co/auth/v1/callback`), and paste the client ID/secret
+   into Supabase.
+2. **Redirect URLs** — Authentication → URL Configuration: add the deployed URL
+   (and `http://localhost:4180` for testing) so the OAuth `redirectTo` lands back
+   on the page.
+
+No email/SMTP setup is needed — teachers use Google sign-in, not email links.
 
 ## Register as a Google Meet Add-on (Workspace admin)
 

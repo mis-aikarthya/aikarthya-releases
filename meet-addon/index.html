@@ -45,13 +45,17 @@
 
 <!-- ============ AUTH ============ -->
 <section id="view-auth" class="hidden">
-  <p style="font-size:14px;color:var(--muted)">Sign in to mark or run attendance.</p>
-  <label>Email</label>
-  <input id="email" type="email" autocomplete="email" placeholder="you@example.com" />
-  <label>Password <small>(facilitators)</small></label>
-  <input id="password" type="password" autocomplete="current-password" placeholder="leave blank for an email link" />
-  <button id="btn-password">Sign in</button>
-  <button id="btn-magic" class="secondary">Email me a sign-in link</button>
+  <p style="font-size:14px;color:var(--muted)">Teachers: continue with your Google account to mark attendance.</p>
+  <button id="btn-google">Continue with Google</button>
+
+  <details style="margin-top:18px">
+    <summary style="font-size:13px;color:var(--muted);cursor:pointer">Facilitator sign in</summary>
+    <label>Email</label>
+    <input id="email" type="email" autocomplete="email" placeholder="you@example.com" />
+    <label>Password</label>
+    <input id="password" type="password" autocomplete="current-password" />
+    <button id="btn-password" class="secondary">Sign in</button>
+  </details>
   <div id="auth-msg"></div>
 </section>
 
@@ -113,18 +117,21 @@ $('btn-password').onclick = async () => {
   const { error } = await sb.auth.signInWithPassword({ email, password });
   if (error) msg($('auth-msg'), error.message, 'err');
 };
-$('btn-magic').onclick = async () => {
-  const email = $('email').value.trim();
-  if (!email) return msg($('auth-msg'), 'Enter your email first.', 'err');
-  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href } });
-  msg($('auth-msg'), error ? error.message : 'Check your email for the sign-in link.', error ? 'err' : 'ok');
+$('btn-google').onclick = async () => {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: location.href },
+  });
+  if (error) msg($('auth-msg'), error.message, 'err');
 };
 $('signout').onclick = async () => { await cleanup(); await sb.auth.signOut(); };
 
 async function cleanup() { if (channel) { await sb.removeChannel(channel); channel = null; } sessionId = null; }
 
 // ---------- routing ----------
-sb.auth.onAuthStateChange((_e, session) => route(session));
+// Defer out of the callback: supabase-js holds an auth lock during
+// onAuthStateChange, and awaiting a data query inside it deadlocks.
+sb.auth.onAuthStateChange((_e, session) => setTimeout(() => route(session), 0));
 sb.auth.getSession().then(({ data }) => route(data.session));
 
 async function route(session) {
