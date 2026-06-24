@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aikarthya Online Attendance</title>
+<!--
+  Google Meet Add-on: online session teacher attendance.
+  Plain static page (no build step) loaded into the Meet side panel.
+  Also works standalone as a shared link (the documented fallback).
+  Meet Add-ons SDK: optional, see README.md — the page is usable without it.
+-->
+<style>
+  :root { --b:#1a73e8; --g:#1e8e3e; --r:#d93025; --line:#dadce0; --muted:#5f6368; }
+  * { box-sizing:border-box; }
+  body { font-family:system-ui,Roboto,Arial,sans-serif; margin:0; color:#202124;
+         max-width:420px; padding:16px; }
+  h1 { font-size:18px; margin:0 0 12px; }
+  h2 { font-size:15px; margin:16px 0 8px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 4px; }
+  input, select, button { width:100%; padding:10px; font-size:14px; border:1px solid var(--line);
+          border-radius:8px; background:#fff; }
+  button { background:var(--b); color:#fff; border:none; cursor:pointer; margin-top:12px; font-weight:600; }
+  button.secondary { background:#fff; color:var(--b); border:1px solid var(--b); }
+  button.danger { background:var(--r); }
+  button:disabled { opacity:.5; cursor:default; }
+  .hidden { display:none; }
+  .row { display:flex; gap:8px; align-items:center; }
+  .pill { display:inline-block; background:#e8f0fe; color:var(--b); border-radius:12px;
+          padding:2px 10px; font-size:12px; }
+  .stat { font-size:32px; font-weight:700; }
+  .msg { padding:10px; border-radius:8px; font-size:14px; margin-top:12px; }
+  .msg.ok { background:#e6f4ea; color:var(--g); }
+  .msg.err { background:#fce8e6; color:var(--r); }
+  .list { margin:8px 0 0; padding:0; list-style:none; }
+  .list li { padding:8px 0; border-bottom:1px solid var(--line); font-size:14px;
+             display:flex; justify-content:space-between; }
+  .list li small { color:var(--muted); }
+  .topbar { display:flex; justify-content:space-between; align-items:center; }
+  .link { color:var(--b); background:none; border:none; width:auto; padding:0; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="topbar"><h1>Online Attendance</h1><button id="signout" class="link hidden">Sign out</button></div>
+
+<!-- ============ AUTH ============ -->
+<section id="view-auth" class="hidden">
+  <p style="font-size:14px;color:var(--muted)">Sign in to mark or run attendance.</p>
+  <label>Email</label>
+  <input id="email" type="email" autocomplete="email" placeholder="you@example.com" />
+  <label>Password <small>(facilitators)</small></label>
+  <input id="password" type="password" autocomplete="current-password" placeholder="leave blank for an email link" />
+  <button id="btn-password">Sign in</button>
+  <button id="btn-magic" class="secondary">Email me a sign-in link</button>
+  <div id="auth-msg"></div>
+</section>
+
+<!-- ============ PF / HOST ============ -->
+<section id="view-pf" class="hidden">
+  <div id="pf-start">
+    <span class="pill">Facilitator</span>
+    <label>Attendance topic</label>
+    <input id="topic" type="text" placeholder="e.g. SkillUp Module 3" />
+    <label>School / group</label>
+    <select id="pf-school"><option value="">All my assigned schools</option></select>
+    <button id="btn-start">Start attendance</button>
+    <div id="pf-start-msg"></div>
+  </div>
+
+  <div id="pf-dash" class="hidden">
+    <div class="topbar">
+      <span class="pill" id="dash-topic">—</span>
+      <span id="dash-state" class="pill">OPEN</span>
+    </div>
+    <h2>Submitted</h2>
+    <div class="stat" id="dash-count">0</div>
+    <div id="dash-by-school" style="font-size:13px;color:var(--muted)"></div>
+    <ul class="list" id="dash-list"></ul>
+    <button id="btn-stop" class="danger">Stop attendance</button>
+  </div>
+</section>
+
+<!-- ============ TEACHER ============ -->
+<section id="view-teacher" class="hidden">
+  <span class="pill">Teacher</span>
+  <div id="t-active">
+    <h2 id="t-topic">—</h2>
+    <label>School</label>
+    <select id="t-school"><option value="">Select your school…</option></select>
+    <label>Your name</label>
+    <select id="t-teacher" disabled><option value="">Select school first…</option></select>
+    <button id="btn-submit" disabled>Submit attendance</button>
+    <div id="t-msg"></div>
+  </div>
+  <div id="t-none" class="hidden"><div class="msg">No attendance is open right now. Wait for the facilitator to start it.</div></div>
+</section>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, HOST_ROLES } from './config.js';
+
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+const show = id => { for (const s of ['view-auth','view-pf','view-teacher']) $(s).classList.toggle('hidden', s !== id); };
+const msg = (el, text, kind) => { el.className = 'msg ' + (kind||''); el.textContent = text; };
+
+let sessionId = null, channel = null;
+
+// ---------- auth ----------
+$('btn-password').onclick = async () => {
+  const email = $('email').value.trim(), password = $('password').value;
+  if (!email || !password) return msg($('auth-msg'), 'Enter email and password, or use the email link.', 'err');
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) msg($('auth-msg'), error.message, 'err');
+};
+$('btn-magic').onclick = async () => {
+  const email = $('email').value.trim();
+  if (!email) return msg($('auth-msg'), 'Enter your email first.', 'err');
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href } });
+  msg($('auth-msg'), error ? error.message : 'Check your email for the sign-in link.', error ? 'err' : 'ok');
+};
+$('signout').onclick = async () => { await cleanup(); await sb.auth.signOut(); };
+
+async function cleanup() { if (channel) { await sb.removeChannel(channel); channel = null; } sessionId = null; }
+
+// ---------- routing ----------
+sb.auth.onAuthStateChange((_e, session) => route(session));
+sb.auth.getSession().then(({ data }) => route(data.session));
+
+async function route(session) {
+  if (!session) { $('signout').classList.add('hidden'); show('view-auth'); return; }
+  $('signout').classList.remove('hidden');
+  const { data: prof } = await sb.from('profiles').select('role').eq('id', session.user.id).maybeSingle();
+  if (prof && HOST_ROLES.includes(prof.role)) initPf(session.user);
+  else initTeacher(session.user);
+}
+
+// ---------- PF ----------
+async function initPf(user) {
+  show('view-pf'); $('pf-start').classList.remove('hidden'); $('pf-dash').classList.add('hidden');
+  const sel = $('pf-school');
+  sel.length = 1;
+  const { data: schools } = await sb.from('schools').select('id,name').order('name');
+  (schools||[]).forEach(s => sel.add(new Option(s.name, s.id)));
+
+  $('btn-start').onclick = async () => {
+    const topic = $('topic').value.trim();
+    if (!topic) return msg($('pf-start-msg'), 'Enter a topic.', 'err');
+    const { data, error } = await sb.from('sessions').insert({
+      pf_id: user.id, session_date: new Date().toISOString().slice(0,10),
+      mode: 'online', status: 'planned', attendance_open: true, topic,
+      school_id: $('pf-school').value || null,
+    }).select('id,topic').single();
+    if (error) return msg($('pf-start-msg'), error.message, 'err');
+    sessionId = data.id;
+    $('dash-topic').textContent = data.topic;
+    $('pf-start').classList.add('hidden'); $('pf-dash').classList.remove('hidden');
+    await refreshDash(); subscribe();
+  };
+  $('btn-stop').onclick = async () => {
+    const { error } = await sb.from('sessions').update({ attendance_open: false }).eq('id', sessionId);
+    if (error) return;
+    $('dash-state').textContent = 'CLOSED';
+    $('btn-stop').disabled = true;
+    await cleanup();
+  };
+}
+
+async function refreshDash() {
+  const { data } = await sb.from('session_teacher_attendance')
+    .select('id, submitted_email, created_at, teachers(full_name, schools(name))')
+    .eq('session_id', sessionId).order('created_at');
+  const rows = data || [];
+  $('dash-count').textContent = rows.length;
+  const bySchool = {};
+  $('dash-list').innerHTML = rows.map(r => {
+    const name = r.teachers?.full_name || r.submitted_email || 'Unknown';
+    const school = r.teachers?.schools?.name || '';
+    if (school) bySchool[school] = (bySchool[school]||0) + 1;
+    const t = new Date(r.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    return `<li><span>${escapeHtml(name)}<br><small>${escapeHtml(school)}</small></span><small>${t}</small></li>`;
+  }).join('');
+  $('dash-by-school').textContent = Object.entries(bySchool).map(([s,n]) => `${s}: ${n}`).join('  •  ');
+}
+
+function subscribe() {
+  channel = sb.channel('att-' + sessionId)
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'session_teacher_attendance', filter: 'session_id=eq.' + sessionId },
+      refreshDash)
+    .subscribe();
+}
+
+// ---------- teacher ----------
+async function initTeacher(user) {
+  show('view-teacher');
+  const { data: sess } = await sb.from('sessions')
+    .select('id, topic').eq('attendance_open', true).order('created_at', { ascending:false }).limit(1).maybeSingle();
+  if (!sess) { $('t-active').classList.add('hidden'); $('t-none').classList.remove('hidden'); return; }
+  $('t-active').classList.remove('hidden'); $('t-none').classList.add('hidden');
+  sessionId = sess.id; $('t-topic').textContent = sess.topic || 'Attendance';
+
+  // already submitted?
+  const { data: mine } = await sb.from('session_teacher_attendance')
+    .select('id').eq('session_id', sessionId).eq('submitted_by', user.id).maybeSingle();
+  if (mine) return submitted();
+
+  const schoolSel = $('t-school'), teacherSel = $('t-teacher');
+  const { data: schools } = await sb.from('schools').select('id,name').order('name');
+  (schools||[]).forEach(s => schoolSel.add(new Option(s.name, s.id)));
+
+  schoolSel.onchange = async () => {
+    teacherSel.length = 1; teacherSel.disabled = true; $('btn-submit').disabled = true;
+    if (!schoolSel.value) return;
+    const { data: teachers } = await sb.from('teachers').select('id,full_name')
+      .eq('school_id', schoolSel.value).order('full_name');
+    (teachers||[]).forEach(t => teacherSel.add(new Option(t.full_name, t.id)));
+    teacherSel.disabled = false;
+    teacherSel.options[0].text = 'Select your name…';
+  };
+  teacherSel.onchange = () => { $('btn-submit').disabled = !teacherSel.value; };
+
+  $('btn-submit').onclick = async () => {
+    $('btn-submit').disabled = true;
+    const { error } = await sb.from('session_teacher_attendance').insert({
+      session_id: sessionId, teacher_id: teacherSel.value, attendance_status: 'present',
+      submitted_by: user.id, submitted_email: user.email, source: 'meet_addon',
+    });
+    if (error) {
+      if (error.code === '23505') return submitted();
+      $('btn-submit').disabled = false;
+      return msg($('t-msg'), error.message, 'err');
+    }
+    submitted();
+  };
+}
+
+function submitted() {
+  $('t-school').disabled = $('t-teacher').disabled = true;
+  $('btn-submit').classList.add('hidden');
+  msg($('t-msg'), 'Attendance recorded ✓', 'ok');
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+</script>
+</body>
+</html>
