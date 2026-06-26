@@ -96,12 +96,19 @@ the MCP tool, use the GraphQL fallback in §5 before you stop.
   1. Read `LINEAR_API_KEY` from the MCP config (`~/.claude.json` →
      `mcpServers.linear.env.LINEAR_API_KEY`). Use it **in-memory only** — never
      echo, log, commit, or paste it (it is a secret; §5 secret rule applies).
-  2. Resolve UUIDs:
+  2. Team AIK id is `56cd8daa-23ae-4f91-b55a-a06663dbac39` (the `team(id:)`
+     argument wants this UUID, not the `T_AI_K` key — resolve via
+     `query { viewer { teams { nodes { id key name } } } }` if it ever moves).
+     `blockedBy` is **not** a field on `Issue` anymore: read blockers via
+     `query { issue(id:"<id>") { inverseRelations { nodes { type issue { identifier state { name } } } } } }`
+     where `type == "blocks"` are the issues blocking this one (`relations` is
+     the reverse — issues this one blocks). Use this for the §2 blockedBy check.
+  3. Resolve UUIDs:
      `query { issue(id:"<issueId>") { state{id,name} team{ states{nodes{id,name,type}} labels{nodes{id,name}} } } }`
      → pick the `Done` (type `completed`) state id and the `needs-review` label
      id. Also `query { issue(id:"<id>") { labels{nodes{id,name}} } }` to read the
      issue's current labels so you **add** to them, not replace.
-  3. Apply the transition:
+  4. Apply the transition:
      `mutation { issueUpdate(id:"<id>", input:{ stateId:"<doneId>", labelIds:[...existing, "<needsReviewId>"], title:"<clean title>" }) { success issue{ state{name} labels{nodes{name}} } } }`
      posted to `https://api.linear.app/graphql` with header
      `Authorization: <LINEAR_API_KEY>`.
