@@ -61,6 +61,14 @@ Steps:
 6. **Commit** to the shared branch. Message: `AIK-N: <what> — <why>` ending with the Co-Authored-By trailer.
 7. **Close out** — all AC met → label `needs-review`, move **Done**. Partial → push, comment the remainder, move back **Todo**.
 
+**Status is the source of truth for what is ongoing.** At *every* transition you
+must update the issue's Linear status so the board reflects reality: claim →
+**In Progress**, finish → **Done** + `needs-review`, partial → **Todo** + a
+what-remains comment. Never leave an issue you have started sitting in its old
+state — the next run picks issues mechanically by status, so an untransitioned
+issue gets re-picked and the work is duplicated. If you cannot transition via
+the MCP tool, use the GraphQL fallback in §5 before you stop.
+
 ## 4. Verification (staging-first, always)
 
 - App issues:
@@ -78,6 +86,29 @@ Steps:
 - **`needs-human` gate** — privileged auth-adjacent paths (**AIK-22** role/active edits, **AIK-24** password reset) are built + verified but **held for human review**, never auto-merged.
 - **Reuse before building.** The issues name existing providers/widgets to extend (`mgmt_home_providers.dart`, `FieldMapBand`, the attendance calendar, `sync_outbox`, `currentLocationProvider`). Re-implementing them is a bug, not progress.
 - **One human PR at the end** — when the branch is green and all non-`needs-human` issues are Done, a human opens **one** PR (`auto M&E mgmt dashboard and frontend development - Night Shift`) to `main`.
+- **Linear transitions are mandatory, with a GraphQL fallback.** The Linear MCP
+  `update_issue` tool has a known defect: it rejects every status *name*
+  (`In Progress`, `Done`, …) with `stateId must be a UUID` and exposes no state
+  UUIDs or label field, so status/label transitions fail while reads, resource
+  fetches, and comments still work. When the MCP tool fails (or any Linear
+  write is blocked), do **not** abandon the transition — call Linear's GraphQL
+  API directly with the same credential the MCP server uses:
+  1. Read `LINEAR_API_KEY` from the MCP config (`~/.claude.json` →
+     `mcpServers.linear.env.LINEAR_API_KEY`). Use it **in-memory only** — never
+     echo, log, commit, or paste it (it is a secret; §5 secret rule applies).
+  2. Resolve UUIDs:
+     `query { issue(id:"<issueId>") { state{id,name} team{ states{nodes{id,name,type}} labels{nodes{id,name}} } } }`
+     → pick the `Done` (type `completed`) state id and the `needs-review` label
+     id. Also `query { issue(id:"<id>") { labels{nodes{id,name}} } }` to read the
+     issue's current labels so you **add** to them, not replace.
+  3. Apply the transition:
+     `mutation { issueUpdate(id:"<id>", input:{ stateId:"<doneId>", labelIds:[...existing, "<needsReviewId>"], title:"<clean title>" }) { success issue{ state{name} labels{nodes{name}} } } }`
+     posted to `https://api.linear.app/graphql` with header
+     `Authorization: <LINEAR_API_KEY>`.
+  Build the JSON body with `python -c "import json; ...json.dumps({'query': q})"`
+  (`jq` is not installed on this host). Confirm the mutation returns
+  `success: true` and re-check via `search_issues` before stopping. This
+  fallback exists precisely so no issue is left untransitioned.
 
 ---
 
