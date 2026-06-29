@@ -220,12 +220,21 @@ supabase link --project-ref <ref>
    `scripts/release-to-drive.ps1` in Step 8 as `<download_url>`:
 
 ```sql
-INSERT INTO app_versions (build_number, version_name, download_url, mandatory, created_at, updated_at)
-VALUES (<build>, '<name>', '<APK_FOLDER_LINK>', false, now(), now())
-ON CONFLICT (build_number) DO UPDATE SET
-  version_name = EXCLUDED.version_name,
-  download_url = EXCLUDED.download_url,
-  updated_at   = EXCLUDED.updated_at;
+INSERT INTO app_versions (
+  platform, version, build_number, download_url, release_notes,
+  force_update, min_sdk_version, is_active
+)
+VALUES (
+  'android', '<name>', <build>, '<APK_FOLDER_LINK>', '<release notes>',
+  false, 21, true
+)
+ON CONFLICT (platform, build_number) DO UPDATE SET
+  version       = EXCLUDED.version,
+  download_url  = EXCLUDED.download_url,
+  release_notes = EXCLUDED.release_notes,
+  force_update  = EXCLUDED.force_update,
+  is_active     = EXCLUDED.is_active,
+  updated_at    = NOW();
 ```
 
 Run it with:
