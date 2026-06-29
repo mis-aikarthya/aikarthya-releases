@@ -121,7 +121,9 @@ mkdir -p ../../aikarthya-releases/staging-v<name>+<build>-<timestamp>/
 ```
 
 Write or update:
+- `CHANGELOG.md` — structured changelog entries grouped by type (Features, Fixes, Chores)
 - `RELEASE-NOTES.md` — change list, backend, version, build, date, known issues
+- `SUMMARY.md` — one-paragraph executive summary of what changed and why this release ships
 - `CHECKLIST.md` — e2e test checklist and sign-off
 - `FEEDBACK.md` — placeholder for reviewer feedback
 
@@ -191,7 +193,7 @@ pwsh -File scripts/release-to-drive.ps1 `
   -ChangelogPath  "aikarthya-releases/<folder>/CHANGELOG.md" `
   -ReleaseNotePath "aikarthya-releases/<folder>/RELEASE-NOTES.md" `
   -SummaryPath "aikarthya-releases/<folder>/SUMMARY.md" `
-  -KeyFile <sa.json>
+  -KeyFile "<sa.json>"
 ```
 
 The script prints a line of the form:
