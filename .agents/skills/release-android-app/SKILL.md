@@ -3,9 +3,9 @@ name: release-android-app
 description: |
   Use this skill whenever the user wants to release a new Android build of the Aikarthya Field Ops app.
   Triggers include: "release the app", "build new version", "publish APK", "update app_versions",
-  "GitHub release", "new build number", "staging release", or any Android deployment request.
+  "new build number", "staging release", or any Android deployment request.
   This skill determines version/build, selects backend (staging/production), builds the APK,
-  publishes a GitHub release, and updates the correct Supabase app_versions table.
+  uploads artifacts to Google Drive, and updates the correct Supabase app_versions table.
   Always use this skill for app release work unless the user explicitly says otherwise.
 ---
 
@@ -18,7 +18,6 @@ Release the Aikarthya Field Ops Android app end-to-end.
 Use this skill when the user asks to:
 - Release / publish / deploy a new Android APK
 - Build a new version or build number
-- Create a GitHub release for the app
 - Update the `app_versions` table in Supabase
 - Perform a staging release or production release
 - Validate / check the last release and changes since then
@@ -49,12 +48,6 @@ Run:
 
 ```bash
 git tag --sort=-creatordate | head -n 5
-```
-
-Also check the latest GitHub release:
-
-```bash
-gh release list --repo mis-aikarthya/aikarthya-field-ops-app --limit 5
 ```
 
 Capture:
@@ -98,7 +91,7 @@ If the user does **not** provide them, or the values are unclear, or they confli
 - Should this be a patch, minor, or major bump?
 ```
 
-Reject build numbers that are already present in GitHub releases or in the production `app_versions` table for the target backend. If a conflict is found, ask again.
+Reject build numbers that are already present in the `app_versions` table for the target backend. If a conflict is found, ask again.
 
 For **staging** releases, the version/build in `pubspec.yaml` does not necessarily need to be bumped, because staging builds are internal/test builds. Still confirm the desired version with the user.
 
@@ -132,45 +125,82 @@ Write or update:
 - `CHECKLIST.md` — e2e test checklist and sign-off
 - `FEEDBACK.md` — placeholder for reviewer feedback
 
-## Step 7 — Build the APK
+## Step 7 — Build artifacts
 
 1. Ensure `APP_ENV` is set correctly:
    - Production: `APP_ENV=production`
    - Staging: `APP_ENV=staging`
 
-2. Clean and build:
+2. Clean and restore dependencies once:
 
 ```bash
 flutter clean
 flutter pub get
+```
+
+3. Build the Android APK:
+
+```bash
 flutter build apk --release
 ```
 
-3. Copy the APK to the release folder:
+Copy to release folder and record checksum:
 
 ```bash
 cp build/app/outputs/flutter-apk/app-release.apk ../../aikarthya-releases/<folder>/aikarthya-field-ops-v<name>+<build>.apk
 ```
 
-4. Record the SHA-256 or MD5 checksum in the release folder.
+4. Build the Windows desktop bundle and zip it:
 
-## Step 8 — Create GitHub release
+```powershell
+flutter build windows --release
+Compress-Archive -Path build\windows\x64\runner\Release\* `
+  -DestinationPath "..\..\aikarthya-releases\<folder>\aikarthya-field-ops-v<name>+<build>-windows.zip"
+```
 
-1. Create the release:
+5. Build the web bundle and zip it:
 
 ```bash
-gh release create "v<name>+<build>" \
-  --repo mis-aikarthya/aikarthya-field-ops-app \
-  --title "v<name>+<build>" \
-  --notes-file ../../aikarthya-releases/<folder>/RELEASE-NOTES.md \
-  ../../aikarthya-releases/<folder>/aikarthya-field-ops-v<name>+<build>.apk
+flutter build web --release
 ```
 
-2. Capture the asset download URL:
+```powershell
+Compress-Archive -Path build\web\* `
+  -DestinationPath "..\..\aikarthya-releases\<folder>\aikarthya-field-ops-v<name>+<build>-web.zip"
+```
+
+6. Record the SHA-256 checksum for the APK in the release folder.
+
+## Step 8 — Upload to Google Drive
+
+> **GitHub releases are dormant.** Do **not** commit APKs or zips to the repository
+> (`*.apk` and `*.zip` are gitignored) and do **not** create GitHub release assets.
+> All distribution happens through the shared Google Drive folder.
+
+Run `scripts/release-to-drive.ps1` using PowerShell 7 (`pwsh`) from the repo root.
+Supply the version/build, all three artifact paths, the three doc paths, and the
+service-account key file (`<sa.json>` is a local secret — never commit it):
+
+```powershell
+pwsh -File scripts/release-to-drive.ps1 `
+  -Version <name> `
+  -Build <build> `
+  -ApkPath     "aikarthya-releases/<folder>/aikarthya-field-ops-v<name>+<build>.apk" `
+  -DesktopZipPath "aikarthya-releases/<folder>/aikarthya-field-ops-v<name>+<build>-windows.zip" `
+  -WebZipPath  "aikarthya-releases/<folder>/aikarthya-field-ops-v<name>+<build>-web.zip" `
+  -ChangelogPath  "aikarthya-releases/<folder>/CHANGELOG.md" `
+  -ReleaseNotePath "aikarthya-releases/<folder>/RELEASE-NOTES.md" `
+  -SummaryPath "aikarthya-releases/<folder>/SUMMARY.md" `
+  -KeyFile <sa.json>
+```
+
+The script prints a line of the form:
 
 ```
-https://github.com/mis-aikarthya/aikarthya-field-ops-app/releases/download/v<name>%2B<build>/aikarthya-field-ops-v<name>+<build>.apk
+APK_FOLDER_LINK=https://drive.google.com/drive/folders/...
 ```
+
+Copy that URL — it is the value you will use for `app_versions.download_url` in the next step.
 
 ## Step 9 — Update Supabase app_versions table
 
@@ -184,11 +214,12 @@ cd ../aikarthya-supabase
 supabase link --project-ref <ref>
 ```
 
-2. Insert or update the `app_versions` row:
+2. Insert or update the `app_versions` row, using the `APK_FOLDER_LINK` URL printed by
+   `scripts/release-to-drive.ps1` in Step 8 as `<download_url>`:
 
 ```sql
 INSERT INTO app_versions (build_number, version_name, download_url, mandatory, created_at, updated_at)
-VALUES (<build>, '<name>', '<download_url>', false, now(), now())
+VALUES (<build>, '<name>', '<APK_FOLDER_LINK>', false, now(), now())
 ON CONFLICT (build_number) DO UPDATE SET
   version_name = EXCLUDED.version_name,
   download_url = EXCLUDED.download_url,
@@ -213,8 +244,7 @@ supabase db query --linked "SELECT * FROM app_versions WHERE build_number = <bui
 2. Report to the user:
    - Version and build
    - Backend used
-   - GitHub release URL
-   - APK download URL
+   - Drive APK folder URL (`APK_FOLDER_LINK`)
    - `app_versions` row status
    - Any blockers or manual steps needed
 
