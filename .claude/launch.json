@@ -6,6 +6,28 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "design-playground", "run", "dev", "--", "--port", "5173", "--strictPort"],
       "port": 5173
+    },
+    {
+      "name": "meet-addon",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "serve", "meet-addon", "-l", "4180"],
+      "port": 4180
+    },
+    {
+      "name": "flutter-staging",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": [
+        "run",
+        "-d",
+        "web-server",
+        "--web-hostname",
+        "localhost",
+        "--web-port",
+        "8088",
+        "--dart-define=APP_ENV=staging"
+      ],
+      "cwd": "aikarthya-field-ops-app",
+      "port": 8088
     }
   ]
 }

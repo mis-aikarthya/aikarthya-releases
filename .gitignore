@@ -1,5 +1,20 @@
 .omc/
 .claude/
+
 # APKs live as GitHub release assets, never committed to the repo (93 MB binaries)
 *.apk
 *.zip
+
+# Brainstorming visual-companion mockups
+.superpowers/
+
+.claude/settings.local.json
+
+# Night Shift - local staging mgmt test login (never commit)
+NIGHT_SHIFT_SECRETS
+**/.env.local
+
+# Local-only scratch + secrets (admin backfill keys, etc.) — never commit
+.scratch/
+.playwright-cli/
+.report_assets/

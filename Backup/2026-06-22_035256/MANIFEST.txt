@@ -1,0 +1,3 @@
+Prod FULL pg_dump backup (via pooler) - Mon Jun 22 03:53:29 IST 2026
+ref: nuwqxlhuxwgevxvsyusj
+files: prod_public_full.sql (schema+data), prod_public_data.sql (data-only), MANIFEST_rowcounts.csv
