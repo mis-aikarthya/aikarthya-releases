@@ -39,6 +39,22 @@
   no longer used. The web `app_versions` row remains bookkeeping only (web is served
   live from Cloudflare Pages, not installed), and the Drive upload omits `-WebZipPath`
   unless a web bundle artifact is explicitly needed for a release.
+- **Re-spinning a broken release at the same version** (v1.1.1+16 re-spin, 03-Jul-2026):
+  when a shipped build is found broken and the fix does not change the version/build
+  number, do NOT bump the version or create a new Drive folder. `release-to-drive.ps1`
+  is idempotent: `Ensure-Folder` reuses the existing `Version<v>+<b>` folder (queries by
+  name+parent+`trashed=false`), and `Upload-File` trashes any same-named old file in
+  that folder before uploading the new one. Re-running it with the same `-Version`/`-Build`
+  therefore replaces the artifacts IN PLACE — the `APK_FOLDER_LINK` printed is identical
+  to the first upload, so the `app_versions` row (which stores that URL as
+  `download_url`) needs NO change and NO new migration. What DOES need updating: the
+  release docs' artifact sha256/size (recompute from the new build) plus a dated re-spin
+  note in RELEASE-NOTES/SUMMARY/CHECKLIST recording what broke and how it was fixed.
+  Commit those doc updates to releases `main`. The broken build's hashes should stay
+  referenced in the re-spin note for history (do not silently overwrite them as if the
+  first build never existed). If the broken build was never promoted to prod
+  (`app_versions` row still `is_active=false` or the migration not yet applied), no
+  user-facing rollback is needed; if it WAS live, also supersede it in `app_versions`.
 
 ## Work Guidance
 
