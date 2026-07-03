@@ -9,6 +9,15 @@ Sign off each row after verifying on a fresh install from the Drive artifacts.
 > next launch. The artifacts on Drive were replaced in place (same folder link).
 > Re-verify the cold-boot row below on a device that hit the crash.
 
+> **Second re-spin 03-Jul-2026 (~19:40 IST).** The first re-spin still shipped
+> with reverted Brick numeric casts, so the PF Assessment Tab "Submitted" list
+> threw `type 'int' is not a subtype of type 'double?' in the cast` on every
+> submitted observation form on Android + Windows (web uses direct Supabase
+> reads, unaffected). Fixed by re-running `tool/brick_fix_numeric_casts.dart`
+> (40 casts across 7 adapters, commit `d7e46d8` to `master`). Artifacts replaced
+> in place on Drive (same folder link). Re-verify the Assessment-Tab "Submitted"
+> row below on a device that hit the cast crash.
+
 ## Android (APK, min_sdk 21)
 
 - [ ] App installs over v1.1.0+15 and the in-app updater offers the Drive
@@ -24,6 +33,10 @@ Sign off each row after verifying on a fresh install from the Drive artifacts.
       Assessments / Profile tabs; resync button; real-month metrics).
 - [ ] STF session / observation forms open and submit for an stf_facilitator
       (clone of PF flow, rewired to stf_* persistence).
+- [ ] PF Assessment Tab "Submitted" list loads without crashing after
+      submitting one or more Teacher Observation Forms (was
+      `type 'int' is not a subtype of type 'double?'` before the second
+      re-spin; web was unaffected).
 - [ ] DCR journal: save as draft, resume via tap, edit submitted, swipe-to-
       discard a draft.
 - [ ] Background location + check-in still writes a `location_pings` row; pings
@@ -50,8 +63,11 @@ Sign off each row after verifying on a fresh install from the Drive artifacts.
 - [ ] Old android 1.1.0+15 row remains is_active=false (superseded).
 - [ ] `schools.follows_govt_holidays` and `stf_attendance` present on prod
       (confirmed pre-release).
-- [ ] (After 7 PM IST) remaining STF-only migrations applied to prod + all edge
-      functions redeployed to prod (incl. send-stf-email).
+- [x] Remaining STF-only migrations (`questions.options`/`answer_key`,
+      `stf_sessions` area, `stf_dcr` status) + `app_versions` 1.1.1+16 rows
+      applied to prod (confirmed 03-Jul via `supabase migration list --linked`
+      + `db push --dry-run` "up to date"); all 13 edge functions redeployed to
+      prod (incl. `send-stf-email`). Prod window widened to 6 PM-9 AM IST.
 
 ## Sign-off
 

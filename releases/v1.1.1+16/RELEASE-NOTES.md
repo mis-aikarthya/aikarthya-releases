@@ -30,14 +30,30 @@
 > false on web). Fixed by stripping the spurious `InsertColumn`/`DropColumn`
 > `next_step` from the migration (commit `95fa77d`); the failed migration was
 > never recorded as applied, so existing stuck installs self-heal on next
-> launch. The artifacts below are the re-spun, fixed build. The Drive folder
-> link and `app_versions` rows are unchanged (the script trashed the old files
-> and uploaded the new ones into the same folder).
+> launch. The Drive folder link and `app_versions` rows are unchanged (the
+> script trashed the old files and uploaded the new ones into the same folder).
+
+> **Second re-spin (03-Jul-2026, ~19:40 IST).** The first re-spin fixed the
+> cold-boot crash but shipped with Brick numeric casts that the gap-fix codegen
+> had silently reverted: the generated adapters cast numeric columns with
+> `as double` / `as double?`, but Supabase returns whole numbers over JSON as
+> Dart `int`, so `int as double` threw `type 'int' is not a subtype of type
+> 'double?' in the cast` and the PF Assessment Tab "Submitted" list crashed on
+> every submitted observation form on Android + Windows (web was unaffected —
+> `main.dart` gates Brick behind `kIsBrickSupported`, false on web, so web
+> uses direct Supabase reads, not the Brick adapter). Fixed by re-running the
+> sanctioned `tool/brick_fix_numeric_casts.dart` script — 40 cast sites across
+> 7 adapters (`registered_point`, `attendance`, `observation`, `location_ping`,
+> `school`, `school_leader_profile`, `teacher`), casting through `num` then
+> `.toDouble()` (commit `d7e46d8`, merged to `master`). Artifacts below are the
+> second re-spin; the first re-spin's hashes were APK
+> `9ea86b91...` / zip `27552074...` (kept for history). Drive folder link +
+> `app_versions` rows unchanged (idempotent re-upload into the same folder).
 
 | Artifact | Size | SHA-256 |
 |----------|------|---------|
-| `aikarthya-field-ops-v1.1.1+16.apk` | 100,099,041 B (~95.5 MB) | `9ea86b912523ca54ba11d782d54b5988a60c0ec4f3c198a4e77ee9ec3a6bf760` |
-| `aikarthya-field-ops-v1.1.1+16-windows.zip` | 28,179,895 B (~26.9 MB) | `27552074B7F81ACBE3B1CF8CB31155FE77090DDD11943D066076344F27BB6367` |
+| `aikarthya-field-ops-v1.1.1+16.apk` | 100,099,041 B (~95.5 MB) | `352cfb17a762bb53f1763ca97a13357513c60d008ffb481dac5ecf339b631e17` |
+| `aikarthya-field-ops-v1.1.1+16-windows.zip` | 28,179,684 B (~26.9 MB) | `541035489308702a9fc2ff2fac9014dd0cf4f5711979391c6e0364b820cb55fa` |
 
 ## What changed
 
@@ -60,12 +76,14 @@ See `CHANGELOG.md` for the full grouped list. Highlights:
 ## Backend (production)
 
 - `schools.follows_govt_holidays`, `stf_attendance`, and the `stf_*` tables
-  (incl. `stf_dcr` status columns) are already present on production, so the
-  additive app changes are safe against the live prod DB during the release
-  window. The remaining STF migrations (`questions.options` / `answer_key`,
-  `stf_sessions` area constraint, `stf_dcr` status) are STF-only and invisible
-  (no STF fellows provisioned yet); they are scheduled for the 7 PM-9 AM IST prod
-  migration window.
+  (incl. `stf_dcr` status columns) are present on production, so the additive
+  app changes are safe against the live prod DB. The remaining STF migrations
+  (`questions.options` / `answer_key`, `stf_sessions` area constraint,
+  `stf_dcr` status) and the `app_versions` 1.1.1+16 rows were confirmed applied
+  to production on 03-Jul-2026 (`supabase migration list --linked` showed all
+  applied; `db push --dry-run` reported "Remote database is up to date"), and
+  all 13 edge functions were redeployed to prod the same day. The prod schema
+  migration window is 6 PM-9 AM IST (widened from 7 PM on 03-Jul-2026).
 
 ## Known issues
 

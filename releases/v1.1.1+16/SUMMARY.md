@@ -10,6 +10,18 @@
 > `kIsBrickSupported`, false on web). Stuck installs self-heal on next launch.
 > Drive artifacts replaced in place (same folder link / `app_versions` rows).
 
+> **Second re-spin 03-Jul-2026 (~19:40 IST).** The first re-spin still shipped
+> with reverted Brick numeric casts: generated adapters cast numeric columns
+> `as double`/`as double?`, but Supabase returns whole numbers as Dart `int`, so
+> the PF Assessment Tab "Submitted" list threw
+> `type 'int' is not a subtype of type 'double?' in the cast` on every submitted
+> observation form on Android + Windows (web unaffected — direct Supabase reads).
+> Fixed by re-running `tool/brick_fix_numeric_casts.dart` (40 casts across 7
+> adapters, cast through `num` then `.toDouble()`, commit `d7e46d8` to `master`).
+> Artifacts rebuilt and re-uploaded to the SAME Drive folder (link unchanged);
+> new hashes APK `352cfb17...` / zip `54103548...` (first re-spin was
+> `9ea86b91...` / `27552074...`).
+
 Aikarthya Field Ops v1.1.1+16 ships the Super Teacher Fellowship (STF) app
 layer end to end (P0 foundations through Phase 8) plus the G01-G17 + G05/G06
 roadmap gap-fix, 22 commits on from v1.1.0+15 (the M&E console release). STF
@@ -33,4 +45,6 @@ same version; `app_versions` rows for android and windows are published with
 `force_update = false`. Backend: `schools.follows_govt_holidays`,
 `stf_attendance`, and the `stf_*` tables are already on production, so the
 additive app changes are safe against the live prod DB; the remaining STF-only
-migrations are scheduled for the 7 PM-9 AM IST prod window.
+migrations + the `app_versions` 1.1.1+16 rows were confirmed applied to
+production on 03-Jul-2026, and all 13 edge functions were redeployed to prod
+the same day (prod schema window widened to 6 PM-9 AM IST).
