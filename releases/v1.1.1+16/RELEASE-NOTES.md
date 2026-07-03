@@ -20,10 +20,24 @@
 
 ## Artifacts
 
+> **Build re-spin (03-Jul-2026, ~17:45 IST).** The first 1.1.1+16 APK/Windows
+> build (sha256 `8dcc8f68...` / `f6101832...`, built ~16:25) had a cold-boot
+> crash: the G10 Brick migration `20260702204008` re-inserted `Observation.next_step`,
+> which already exists via the `RenameColumn` in migration `20260616140256`, so
+> `ALTER TABLE Observation ADD next_step` threw `duplicate column name: next_step`
+> at boot and the app was stuck on the first screen on every Android/Windows
+> install (web was unaffected — `main.dart` gates Brick behind `kIsBrickSupported`,
+> false on web). Fixed by stripping the spurious `InsertColumn`/`DropColumn`
+> `next_step` from the migration (commit `95fa77d`); the failed migration was
+> never recorded as applied, so existing stuck installs self-heal on next
+> launch. The artifacts below are the re-spun, fixed build. The Drive folder
+> link and `app_versions` rows are unchanged (the script trashed the old files
+> and uploaded the new ones into the same folder).
+
 | Artifact | Size | SHA-256 |
 |----------|------|---------|
-| `aikarthya-field-ops-v1.1.1+16.apk` | 100,099,041 B (~95.5 MB) | `8dcc8f683fcff442b0b0d1d349cb970821023d4677f6bc77b0d26617832dd89a` |
-| `aikarthya-field-ops-v1.1.1+16-windows.zip` | 28,179,912 B (~26.9 MB) | `f6101832cc0bfd3767c7b1f2b7427c32e9adcbbc4d9acafd0953722f5ce3c47a` |
+| `aikarthya-field-ops-v1.1.1+16.apk` | 100,099,041 B (~95.5 MB) | `9ea86b912523ca54ba11d782d54b5988a60c0ec4f3c198a4e77ee9ec3a6bf760` |
+| `aikarthya-field-ops-v1.1.1+16-windows.zip` | 28,179,895 B (~26.9 MB) | `27552074B7F81ACBE3B1CF8CB31155FE77090DDD11943D066076344F27BB6367` |
 
 ## What changed
 

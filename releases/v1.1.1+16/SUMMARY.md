@@ -1,5 +1,15 @@
 # Summary — Aikarthya Field Ops v1.1.1+16
 
+> **Re-spin 03-Jul-2026 (~17:45 IST).** The first 1.1.1+16 APK/Windows build
+> cold-boot-crashed on Android/Windows: the G10 Brick migration
+> `20260702204008` re-inserted `Observation.next_step`, which already exists via
+> the `RenameColumn` in migration `20260616140256`, so boot threw
+> `duplicate column name: next_step` and the app stuck on the first screen.
+> Fixed by stripping the spurious `InsertColumn`/`DropColumn` `next_step`
+> (commit `95fa77d`); web was unaffected (Brick is gated behind
+> `kIsBrickSupported`, false on web). Stuck installs self-heal on next launch.
+> Drive artifacts replaced in place (same folder link / `app_versions` rows).
+
 Aikarthya Field Ops v1.1.1+16 ships the Super Teacher Fellowship (STF) app
 layer end to end (P0 foundations through Phase 8) plus the G01-G17 + G05/G06
 roadmap gap-fix, 22 commits on from v1.1.0+15 (the M&E console release). STF

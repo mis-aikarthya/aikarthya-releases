@@ -2,6 +2,13 @@
 
 Sign off each row after verifying on a fresh install from the Drive artifacts.
 
+> **Re-spin 03-Jul-2026 (~17:45 IST).** The first 1.1.1+16 APK/Windows build
+> cold-boot-crashed (`duplicate column name: next_step` in Brick migration
+> `20260702204008`); fixed by stripping the spurious `InsertColumn`/`DropColumn`
+> `next_step` (commit `95fa77d`, pushed to `master`). Stuck installs self-heal on
+> next launch. The artifacts on Drive were replaced in place (same folder link).
+> Re-verify the cold-boot row below on a device that hit the crash.
+
 ## Android (APK, min_sdk 21)
 
 - [ ] App installs over v1.1.0+15 and the in-app updater offers the Drive
