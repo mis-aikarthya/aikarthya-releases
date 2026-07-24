@@ -1,0 +1,294 @@
+# Changelog — Aikarthya Field Ops v1.2.0+18
+
+286 commits since v1.1.1+16. Grouped by type.
+
+## Features
+- feat(mgmt): team roster role tabs
+- feat(mgmt): STF assignments urban/rural + general/session grouping
+- feat(mgmt): STF feedback urban/rural + nature + month + session categorization
+- feat(reporting): completed reports programme filter
+- feat(reporting): stats SkillUp/STF programme tabs
+- feat(mgmt): STF schools table view
+- feat(mgmt): school data draft filter, month observations, proper table
+- feat(mgmt): restructure STF nav + add STF overview
+- feat(pf-ops): route PF ops notifications; split home vs resume allowlist
+- feat(sync): register student_attendance as first direct/draftQueue entry
+- feat(stf): pass dcrId so attendance reads overlay queued offline marks
+- feat(stf): queue-and-replay attendance RPC on offline mark
+- feat(stf): snapshot-fallback reads + queued-mark overlay in StudentActions
+- feat(stf): pure offline-attendance helpers (parsers, overlay, write builder)
+- feat(sync): add generic shared_preferences snapshot store
+- feat(sync): add rpc op to web write queue, drain cross-platform
+- feat(stf): register stf_attendance/stf_assignments/stf_items/stf_submissions in the sync spine
+- feat(stf): route mgmt-console stf_assignments inserts through the three-way sync branch
+- feat(stf): route the facilitator school-grant insert through the three-way sync branch
+- feat(stf): route the facilitator submission-review update through the three-way sync branch
+- feat(stf): route stf_submissions insert/update through the three-way sync branch
+- feat(stf): route stf_items writes through the three-way sync branch
+- feat(stf): route stf_attendance check-in/check-out through the three-way sync branch
+- feat(sync): register the 4 STF FormPersistence tables + session roster in sync registry
+- feat(stf-session): route session + roster persistence through Brick/web-queue/direct-Supabase
+- feat(brick): add StfSessionFellowAttendance model for offline-coherent session roster saves
+- feat(stf-dcr): route draft persistence through Brick/web-queue/direct-Supabase
+- feat(stf-observation): route persistence through Brick/web-queue/direct-Supabase
+- feat(stf-ocr): route persistence through Brick/web-queue/direct-Supabase
+- feat(sync): add upsert op to web write queue for STF form reroute
+- feat(brick): add StfObservation model for stf_observations
+- feat(brick): add StfSubmission model for stf_submissions with column-map lock test
+- feat(brick): add StfItem model for stf_items with column-map lock test
+- feat(brick): add StfSession model for stf_sessions
+- feat(brick): add StfDcr model for stf_dcr
+- feat(brick): add StfAssignment model for stf_assignments
+- feat(brick): add StfOcr model for stf_ocr
+- feat(brick): add StfAttendance model for stf_attendance
+- feat(forms): rehydrate/write/clear web drafts in TypedFormController
+- feat(forms): add web_draft_store for local typed-answer drafts
+- feat(connectivity): add reachability probe, drain web queue on reconnect
+- feat(sync): snapshot registered points for offline web check-in
+- feat(sync): add web pending-write queue with poison-request guard
+- feat(sync): wire repository.subscribe() via SyncSubscriptions (fixes S2)
+- feat(sync): add centralized SyncEntity/syncRegistry spine
+- feat(auth): keep offline sessions authenticated via cached profile
+- feat(auth): cached profile store + offline auth fallback
+- feat(auth): add ProfileData.toMap for cache serialization
+- feat(stf): add facilitator-approved DCR corrections
+- feat(stf): add adaptive DCR class ledger
+- feat(stf): submit and lock DCR records atomically
+- feat(stf): expose locked attendance state
+- feat(stf): add feedback monitoring page
+- feat(stf): surface feedback in assessments
+- feat(notifications): add Android FCM delivery
+- feat(stf): add content package feedback form
+- feat(stf): replace observation feedback instrument
+- feat(stf): add session feedback form
+- feat(stf): add feedback request persistence
+- feat(notifications): add PWA Web Push
+- feat(notifications): add endpoint lifecycle foundation
+- feat(stf): show period+time audit subtext in the DCR journal Attendance cell
+- feat(stf): resolve period + show audit header on the standalone attendance page
+- feat(stf): embed DcrAttendanceInput in the DCR form + warn-before-submit gating
+- feat(stf): add DcrAttendanceInput inline roster widget
+- feat(stf): add classAttendanceLastTouchProvider
+- feat(stf): add AttendanceTouch + periodNumberForClass/lastAttendanceTouch/markAttendance(period)
+- feat(stf): resolve fellow home tab layout and form access visibility
+- feat(aser): split ASER into three grant-assignable forms
+- feat(sp3-aser): carry instrument id in answers so offline submit works (Decision 4)
+- feat(sp3): offline-capable ASER assessment write layer (Task 11, Band B)
+- feat(sp3): ASER consent video + photo capture with Drive mirror (Task 10)
+- feat(sp3): ASER reachability wiring (Task 12b)
+- feat(sp3-task8): ASER 2-page assessment host + route + widget test
+- feat(sp3): page-2 ASER adaptive test widget
+- feat(sp3): ASER page-1 Forms-v3 schema
+- feat(sp3): ASER FormPersistence (online-first) + dup-catch + answer-key contract
+- feat(sp3): ASER assessment domain + AserActions Supabase seam
+- feat(sp3): ASER set-selection + academic-year + responses.txt helpers
+- feat(sp3): pure ASER adaptive-ladder state machine
+- feat(sp3): bundled ASER english sets asset + loader
+- feat(sp2): DCR journal derives present/enrolled + tap-through to attendance sheet
+- feat(sp2): student attendance sheet + route + placement-card entry
+- feat(sp2): StudentActions attendance methods + classAttendanceSummaryProvider
+- feat(sp2): DCR grade/section registry pickers + drop manual student_count
+- feat(forms): ReferenceQuestion.distinct flag for deduped options
+- feat(sp1): students list page + route + school-card entry
+- feat(sp1): student editor form (add/edit + add-class + generated id)
+- feat(sp1): StudentActions seam + list/registry providers
+- feat(sp1): student domain options, section auto-select, class grouping
+- feat(sp1): client-generatable student_id helper
+- feat(mgmt): STF Assignments oversight list + drill-in routes (read-only)
+- feat(stf): surface quiz/poll answers + Survey/Test toggle across fellow/facilitator sides
+- feat(mgmt): enrich per-user reimbursement page
+- feat(expenses): mgmt Team tab + per-user reimbursement page
+- feat(expenses): mgmt Pending's tab — approve/reject/mark-reimbursed
+- feat(expenses): submit form + My Expenses list with withdraw
+- feat(stf): D facilitator results screen + card/list wiring
+- feat(stf): D fellow answering screen + quiz/poll route
+- feat(stf): D authoring screen + picker/route wiring
+- feat(stf): D actions seam + quiz/poll payload (config={})
+- feat(expenses): expense service helpers + edge invoke wrappers + viewer
+- feat(stf): D question domain — kind/graded model + encode/score/validate
+- feat(stf): facilitator can open/verify a resource (detail page + web-safe PDF/docs)
+- feat(stf): photo upload, whatsapp parsing, facilitator attendance, profile form access
+- feat(stf): branch notification deep-link by item type (resource -> resource view) + resource grouping test
+- feat(stf): fellow resource view page (view/download + like + view-count) + route + widget test
+- feat(stf): fellow list routes resources to the view page + a Like button (reuses A's fn_stf_like_item)
+- feat(stf): resource card branch (like/view chips, optional Like button) + stfItemFellowRoute helper
+- feat(stf): resource authoring entry — form screen type param, picker onResource, FAB + route ?type=resource
+- feat(stf): resource like/view RPC seam + item-by-id provider (app-only, reuses A's RPCs)
+- feat(stf): parameterize StfAssignmentFormPersistence by type (count-query + formCode + loadExisting)
+- feat(stf): branch stf_items insert payload by type (resource: config={}, no due_date/submissions_open)
+- feat(stf): branch authoring schema by type (resource drops assignment-only questions)
+- feat(stf): scope the review page fellow list/stats to targeted fellows
+- feat(stf): scope the facilitator card denominator to targeted fellows
+- feat(stf): persist target_fellow_ids on the stf_items insert
+- feat(stf): add Audience toggle + fellow picker to the assignment form
+- feat(forms): add FellowMultiSelectQuestion type + widget
+- feat(stf): targetFellowIds field, targetedFellows(), Individual Assignment grouping bucket
+- feat(stf): fellow profile, observation form, reporting dashboard, share, fellow reports
+- feat(stf-assignment): deep-link STF item notifications to fellow submission page + DOX
+- feat(stf-assignment): facilitator review with stats + approve/revert + feedback
+- feat(stf-assignment): fellow submission via upload-assignment-files, round-aware, allowed_upload_kinds
+- feat(stf-assignment): fellow Home summary tile off stf_items; drop legacy classroom provider
+- feat(stf-assignment): fellow list with status colors + no-context guard
+- feat(stf-assignment): facilitator list shell with Urban/Rural tabs + FAB type picker
+- feat(stf-assignment): author to stf_items + Drive folder snapshots + attachment upload
+- feat(stf-assignment): shared domain models + pure fns for items/submissions
+- feat(stf_session): require Context for both online and offline modes
+- feat(stf-facilitator): add Urban chip to fellow-list filter
+- feat(stf-profile): fellow Quick Actions — attendance calendar + apply leave
+- feat(profile): AttendanceReportScreen showSummary + title params
+- feat(profile): surface off-location checkout flag on calendar + detail
+- feat(profile): stf_fellow attendance month branch + pure day grouping
+- feat(profile): add additive checkOutFlagged to AttendanceStatus
+- feat(stf-dcr): single-date table journal with day nav + deadline gating
+- feat(stf-dcr): thread selected date into the new-entry route
+- feat(stf-dcr): Add Class Details form chrome + fixed date + roster placeholder
+- feat(stf-dcr): fixed class_date + numeric grade in DCR form schema/persistence
+- feat(stf-dcr): pure deadline/window logic with unit test
+- feat(forms): add optional numeric keyboard flag to TextQuestion
+- feat(stf): fellow Profile shows the fellow's own details (stf_fellow_profiles)
+- feat(stf): group home actions and fellow rows
+- feat(stf): restore profile visual hierarchy
+- feat(stf): refine assessment actions and records
+- feat(stf): facilitator Home reorder, fellow search/filters, gold-on-incomplete metrics
+- feat(stf): content-only fellow Home with DCR/assignment/records summaries
+- feat(stf): fellow 3-tab shell + stfFellowProfile route; complete sync invalidation
+- feat(stf): shared STF profile content; facilitator tab drops PF-only rows
+- feat(stf): local brand tokens + navy Super Teacher top bar
+- feat(core): optional AppTopBar color + AppNavRail leading for STF branding
+- feat(stf): Super Teacher header (shield logo + title + notification bell + teal StfSyncBar)
+- feat(stf-facilitator): Home-tab Schools card (own schools + fellows)
+- feat(stf-mgmt): role-aware school assignment on TeamMemberDetailPage
+- feat(stf-mgmt): STF Schools page with facilitator/fellow assign actions
+- feat(stf-fellow-profile): V3 screen + create/edit routes + draft-create no-op guard
+- feat(stf-fellow-profile): persistence (create via edge fn, edit upsert)
+- feat(stf-fellow-profile): V3 schema
+- feat(stf-school-leader): role-aware school picker + facilitator route
+- feat(stf-school-profile): STF route + guard broadening for facilitators
+- feat(stf-school-profile): role-aware ownership write (stf_assignments for facilitator)
+- feat(stf-ocr): route OCR form from Records & Surveys; remove ticket-list page + Home button
+- feat(stf-ocr): selector-first OCR form with teacher dropdown
+- feat(stf-ocr): extract shared OCR ticket list provider
+- feat(stf-session): reshape session form schema
+- feat(forms): add FellowAttendanceRosterQuestion type + STF roster widget
+- feat(stf-facilitator): match PF profile layout minus Assigned Schools
+- feat(assessment): generalize Assessment tab to STF facilitator/fellow roles
+- feat(design): tokenize shared shell/nav/card widgets; fix(pf_home): correct per-PF offline session target
+
+## Fixes
+- fix(forms): load attendance data when viewing submitted skillup session
+- fix(check-in): eager-prefetch registered points to kill first-tap "still loading" failure
+- fix(mgmt): restore me_associate STF access block; reuse fellow ids in overview
+- fix(mgmt): restore earliest-share accumulation + place-school enabled clarity
+- fix(mgmt): graceful per-chart degrade for dashboard/stats + place-school dialog states
+- fix(sync): stop full resync from cancelling in-flight check-in
+- fix(offline): make STF fellow reads survive offline
+- fix(offline): repair reachability probe and offline profile fallback
+- fix(sync): clear attendance snapshots on sign-out; report poison cause
+- fix(forms): skip autosave when signed out (login-redirect race)
+- fix(checkin): route web check-in/out through the pending-write queue (fixes S5)
+- fix(brick): strip spurious next_step InsertColumn from migration 20260717230325
+- fix(android): pin FCM notifications to the Aikarthya glyph, not the adaptive icon
+- fix(app): clear branch analyzer warnings
+- fix(app): close full-suite schema and ASER gaps
+- fix(stf): align fellow schools with STF programme
+- fix(stf-dcr): IST timezone on attendance audit label + silence benign autosave 23502 noise
+- fix(stf-attendance): use students.id uuid, not the studentId business code
+- fix(stf): remove stray syntax character and adjust obsolete profile widget tests
+- fix(brick): granted forms never appear for STF fellows on mobile
+- fix(stf): dropdown "exactly one item" assertion on grade/section pickers
+- fix(sp3-aser): round-trip created_at so mobile resume doesn't overwrite it
+- fix(sp3-task8): address review C1+I1+I2+I3 in ASER assessment host
+- fix(sp3): explicit type arg on artifacts list literal (analyze clean)
+- fix(sp3): use package import for aser_ladder (repo convention)
+- fix(sp1): move Manage students entry to fellow's own placement card
+- fix(expenses): read-back persist UPDATE, web-PDF snackbar, split decision catch blocks
+- fix(stf): harden notification deep-link type lookup (final-review M-1)
+- fix(stf): resource card view-count is facilitator-only + facilitator resource card is info-only (no review deep-link)
+- fix(stf-assignment): session-grouped headers + in-app image/PDF viewer
+- fix(stf-assignment): in-app image viewer + review-tile ListTile ink assert
+- fix(stf-assignment): resolve DefaultTabController.of() crash on New Item FAB
+- fix(stf-assignment): repoint assessment adapters off dropped stf_classroom_* tables; require review feedback
+- fix(stf-assignment): enforce file presence + single-kind picks + retry answer/links
+- fix(stf-assignment): document provider ignore + drop dead uploadAssignmentSubmission
+- fix(stf-assignment): null-aware session_id count so General items don't 500 on uuid
+- fix(stf-dcr): address fellow feedback on the Daily Class Report
+- fix(core): restore CheckInCardShell default (PF) layout to baseline; add default-path test
+- fix(stf): refine check-in and quick actions
+- fix(stf): finish frontend visual polish
+- fix(stf): make greetings and check-in responsive
+- fix(assessment): STF facilitator school-form rows route to STF routes, not PF paths
+- fix(assessment): stf_dcr drafts surface, submitted filtered, drafts deletable
+- fix(stf): metrics targets from unique placed fellows, not assignment rows
+- fix(stf): null-safe fellow list (grant rows), dedupe, pure search/filter fns
+- fix(stf-mgmt): STF Schools title interpolation (use schoolName, not object toString)
+- fix(stf-ocr): list only pending tickets in the OCR selector dropdown
+- fix(stf-observation): fellow-selector redesign + P0001 submitted-immutability guard
+- fix(stf-ocr): throw Exception not StateError on missing OCR fields
+- fix(stf-session): reshape persistence, fix offline save error
+- fix(assessment,stf): null target_kind crash + over-restricted facilitator check-in
+- fix(profile): gate Attendance Report + fix Programme label for STF roles
+- fix(stf-facilitator): remove New observation/New session home buttons
+- fix(brick): cast numerics through num to stop mobile Assessment Tab crash
+- fix(brick): strip spurious InsertColumn('next_step') from G10 migration
+
+## Refactors
+- refactor(sync): move attendance snapshot prefix into core to undo layering inversion
+- refactor(sync): drive SyncService pull/invalidate from syncRegistry
+- refactor(notifications): centralize safe routing
+- refactor(stf): extract StudentAttendanceMarkRow + add AttendanceAuditHeader
+- refactor(stf): remove the facilitator Home "Add fellow" FAB
+- refactor(stf): replace AddStfFellowPage with the V3 fellow-profile form
+- refactor(stf-ocr): drop observed_teacher_id schema question; set from ticket
+- refactor(stf-session): drop dead prefilledSchoolId from session screen
+- refactor(profile): parameterize ProfileTab with showAssignedSchools
+- refactor(S6): rename me_home -> me_associate, delete dead scaffold folders
+- refactor(S5): split stf/ into forms + stf_facilitator/stf_fellow/mgmt per D3
+- refactor(S4): split pf_home into skillup_pf_all + shared_pages/assessment
+- refactor(features): move profile/reporting/session_registry under features/shared_pages/ (S3)
+- refactor(features): move 5 PF/school forms under features/forms/ (S2)
+- refactor(features): merge auth/ + splash/ into login_flow/screens (S1)
+
+## Chores
+- chore(release): bump to 1.2.0+18 for offline-fix acceptance build
+- chore(release): bump version to 1.2.0+17
+- chore(notifications): add staging Firebase options
+- chore(android): set permanent application identity
+
+## Docs
+- docs(mgmt): DOX the me_associate STF access fix + overview id-reuse pitfall
+- docs(mgmt): DOX pass for console overhaul - drop dead STF landing page
+- docs(pf-ops): record notification route allowlist split in app DOX
+- docs(sync): record cross-user write-queue replay residual
+- docs(stf): correct StudentActions header — attendance is no longer online-only
+- docs(stf): DOX pass — attendance seam is offline-capable via queued RPC
+- docs(stf): correct stale web-only/unwired claims after Spec 4c
+- docs(stf): record Spec 4b Brick reroute closeout across DOX chain
+- docs(brick): note Spec 4a STF models have no consumers yet
+- docs(forms): DOX pass for web draft persistence (Spec 3)
+- docs(sync): DOX pass for the sync registry, subscriptions, and web queue
+- docs(auth): record offline session persistence pattern (DOX)
+- docs(stf): document DCR correction contracts
+- docs(env): record Firebase messaging projects
+- docs(stf): DOX pass for DCR-embedded attendance input + audit label
+- docs(assessment): correct the stale target_kind pitfall after the root-cause fix
+- docs(brick): drop the stale "latent, not yet reproduced" targetKind pitfall
+- docs(sp3): reconcile Decision 4 doc staleness left by implementer session death
+- docs(sp3-task8): DOX pass — aser AGENTS.md adds Task 8 host + test
+- docs(sp2): note class_attendance_summary_join_test in students/AGENTS.md Verification
+- docs(sp1): fix stale route comment after entry-point move
+- docs(expenses): DOX — owner UPDATE seam + read-back + web-PDF pitfall + split-catch
+- docs(expenses): DOX pass — expenses feature + mgmt expense pages
+- docs(stf): D DOX pass — quiz/poll ownership + option-token contract
+- docs(stf): DOX pass for Sub-project C (Resource vertical)
+- docs(stf): DOX pass for Individual Assignment targeting (B2)
+- docs(stf-assignment): document openStfFile in-app image viewer
+- docs(stf-assignment): note the DefaultTabController FAB context pitfall
+- docs(stf-fellow): DOX pass for Home Assignments tile migration to stf_items
+- docs(stf-dcr): DOX pass for table journal + deadline + Add Class Details form
+- docs: DOX pass for STF frontend redesign
+- docs(stf): DOX sweep for STF profile authoring
+- docs(stf-ocr): DOX pass for selector-first OCR form
+- docs(dox): reconcile STF session form + facilitator AGENTS.md
+- docs(assessment): fix dangling doc-comment reference in mapFormTypes
+- docs(dox): reconcile AGENTS.md with STF facilitator three-fixes
+- docs(S7): closeout features/AGENTS.md + lib/AGENTS.md for the S1-S6 restructure
