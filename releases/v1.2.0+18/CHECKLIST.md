@@ -12,6 +12,7 @@ Backend: **production** (`nuwqxlhuxwgevxvsyusj`) · Date: 2026-07-24
 - [x] SHA-256 recorded in RELEASE-NOTES.md
 - [x] Uploaded to Google Drive — folder `12Z9c7MsJPw6sgYzD-DkufN28IfWUAm8e`
 - [x] Web deployed to Cloudflare `app-aikarthya --branch=main` (Production, commit 654891d)
+- [x] Web-only update deployed 06-Aug-2026 to Cloudflare Production (commit `0d10415`): M&E Associate programme navigation and access
 - [x] `app_versions` rows upserted (android + windows + web, is_active=true, build 18)
 - [~] Prior active rows left as-is (app selects max active build; skill-canonical, not deactivated)
 - [x] Git tag `v1.2.0+18` pushed
