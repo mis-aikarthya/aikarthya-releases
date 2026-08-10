@@ -4,13 +4,13 @@
 |-------|-------|
 | Version | 1.2.1 |
 | Build | 19 |
-| Platforms | Android (APK), Windows desktop (zip), Web/PWA (Cloudflare Pages) |
+| Platforms | Android (APK), Web/PWA (Cloudflare Pages) — Windows excluded, see below |
 | Backend | production (`nuwqxlhuxwgevxvsyusj`) |
 | Date | 2026-08-10 |
 | Previous release | v1.2.0+18 (offline-sync + mgmt console overhaul; 2026-07-24) |
 | Commits since previous | 40 |
 | Android application id | `in.org.aikarthya.app` (unchanged — in-place upgrade over v1.2.0+18) |
-| Supabase `app_versions` rows | android 1.2.1+19, windows 1.2.1+19 (force_update = false) |
+| Supabase `app_versions` rows | android 1.2.1+19 (force_update = false); older android + web rows deactivated. No windows row for this build. |
 | Web `app_versions` row | web 1.2.1+19 (bookkeeping only; web is served live) |
 
 > **Backend promotion required.** This build reads tables that do not exist on
@@ -103,10 +103,15 @@ See `CHANGELOG.md` for the full grouped list. Highlights:
 - Devices still on v1.2.0+18 keep working through the promotion window, but their
   cycle boundary dates shift on next sync (45 calendar days becomes 42 working
   days) before they have the build that explains why.
-- The PF planner surfaces are new and have not had a real-device test pass; see
-  `CHECKLIST.md`. The in-place **upgrade** path has been proven on an emulator
-  (v1.2.0+18 to v1.2.1+19: all four Brick migrations applied clean, session
-  carried over, home screen rendered) — the planner screens themselves have not.
+- The PF planner had a partial device pass on the shipping APK against
+  production data (home Per-School Progress, school cards with Visits /
+  Observations / Offline Sessions, planner opening on the calendar — all green,
+  zero `E/flutter`). The interactive planner flows are still unverified:
+  suggestion withdraw and re-space, early-visit and closure-day sanction, the
+  cycle summary rail boundaries, and the whole mgmt-side sanction / closure /
+  consolidated-report set. See the unfilled rows in `CHECKLIST.md`.
+  The in-place **upgrade** path was proven on an emulator (v1.2.0+18 to
+  v1.2.1+19: all four Brick migrations applied clean, session carried over).
 - Unrelated latent defect found while running that upgrade test: killing the app
   mid-way through its first-launch migration chain leaves the local store
   permanently unopenable (`duplicate column name` on every retry), because Brick

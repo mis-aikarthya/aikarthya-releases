@@ -65,6 +65,18 @@
   `--dart-define=APP_ENV=production` against the production Supabase project; staging
   builds are for testing only and are not distributed as releases. Before building any
   release APK, confirm production vs staging with the user (root AGENTS.md Release-build rule).
+- **Staging test builds** (first done 10-Aug-2026 for 1.2.1+19) live in
+  `releases/staging-v<version>+<build>-<YYYYMMDD>/` and carry only a `SUMMARY.md` that
+  states plainly they are not a release, plus the APK. They get **no `app_versions` row**
+  and no git tag. Two naming rules keep them from contaminating the real release record:
+  - The APK filename ends `-staging.apk`.
+  - The Drive upload passes `-Version "<version>-STAGING"`, giving folder
+    `Version<version>-STAGING+<build>`. Passing the plain version would drop a
+    staging-pointed APK **into the production release folder**, because
+    `release-to-drive.ps1` reuses `Version<v>+<b>` by name.
+  A staging APK shares the application id `in.org.aikarthya.app` with production, so
+  installing it replaces the production app and inherits its local Brick store — say so
+  in the SUMMARY every time.
 
 ## Verification
 

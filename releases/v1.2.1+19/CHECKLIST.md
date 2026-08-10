@@ -5,7 +5,8 @@ Backend: **production** (`nuwqxlhuxwgevxvsyusj`) · Date: 2026-08-10
 ## Build & publish
 
 - [x] `flutter analyze` — 0 errors, 0 warnings (info-level lints only)
-- [x] `flutter test` — 1395 passed, 0 failed (re-run after the 10-Aug post-build PF fixes)
+- [x] `flutter test` — **1395 passed, 0 failed**, full suite re-run end to end
+      after the 10-Aug post-build PF fixes (sync service, PF home, planner).
 - [x] Version bumped to `1.2.1+19` per the 03-Jul-2026 patch-increment rule
 - [x] App, supabase and docs repos committed and pushed
 - [x] Backend promotion signed off (`db-edit-feedback-2026-08-10-visit-planner-prod-promotion.md`)
@@ -20,19 +21,23 @@ Backend: **production** (`nuwqxlhuxwgevxvsyusj`) · Date: 2026-08-10
       The first attempt failed: `flutter pub get` writes `integration_test`
       (a dev dependency) into the gitignored `GeneratedPluginRegistrant.java`,
       and release builds drop dev dependencies from the Gradle classpath, so
-      `package dev.flutter.plugins.integration_test does not exist`. Deleting
-      the stale registrant and re-running `flutter pub get` cleared it. Expect
-      this after any integration-test run.
+      `package dev.flutter.plugins.integration_test does not exist`. Fix:
+      delete the registrant and build immediately — do **not** run
+      `flutter pub get` in between, it regenerates the file with the offending
+      line back in (confirmed 10-Aug while building the staging APK). The build
+      regenerates it correctly by itself. Expect this after any
+      integration-test run.
 - [x] ~~Windows zip built~~ — **out of scope for this release** by the operator's
       decision on 10-Aug: Android and web only, since that is what PFs use. The
       Windows build was produced and verified green but is not published and gets
       no `app_versions` row.
 - [x] Web built (`--dart-define=APP_ENV=production`) + zipped — 22.1 MB
 - [x] SHA-256 recorded in RELEASE-NOTES.md (APK + web)
-- [ ] **Artifacts rebuilt after the 10-Aug post-build fixes.** The first APK
-      (`db1f6ce1…`) and the first Windows build predate the PF home / planner
-      corrections and must not ship. Every artifact needs a rebuild, a fresh
-      SHA-256, and a re-run of the upgrade-path test below.
+- [x] **Artifacts rebuilt after the 10-Aug post-build fixes.** The first APK
+      (`db1f6ce1…`) predates the PF home / planner corrections and was not
+      shipped. The published APK (`3d0a8ce4…`) and the published web zip
+      (`b2fa5dca…`) were both built after the fixes, carry fresh SHA-256s, and
+      the upgrade-path check was re-run against the shipping APK (see below).
 - [x] **Brick upgrade path proven on a device.** The full 1.2.0+18 → 1.2.1+19
       run below was against APK `db1f6ce1…`. It carries over to the shipping
       artifact because `lib/brick/` is byte-identical between the two builds —
@@ -60,6 +65,10 @@ Backend: **production** (`nuwqxlhuxwgevxvsyusj`) · Date: 2026-08-10
       `is_active = true`, `force_update = false`. Older android and web rows
       (builds 18, 16, 15) set `is_active = false` so exactly one row per
       platform is current; the pre-existing windows rows were left untouched.
+      Safe for devices still on 18: `UpdateService.checkForUpdate` selects the
+      highest `is_active` android row and compares it to the installed build —
+      it never looks up the row matching the installed build, so deactivating
+      18 cannot gate an upgrading device.
 - [x] Git tag `v1.2.1+19` pushed (app repo `master`, commit `aa56ee5`)
 
 ## e2e / smoke (sign-off)
