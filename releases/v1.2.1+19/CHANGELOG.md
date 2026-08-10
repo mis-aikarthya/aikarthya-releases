@@ -25,6 +25,9 @@
 - feat: give M&E programme access
 
 ## Fixes
+- fix(pf-home): stop claiming "no schools assigned" when it is unsynced cycle data
+- fix(pf-home): show visits, observations and offline sessions on the school card
+- fix(planner): drop the Cards view; the calendar is the only planner view
 - fix(brick): stop re-adding Observation.next_step in the VisitSuggestion migration
 - fix(cycles): resolve observation cycle from synced rows, not the ambiguous view
 - fix(cycles): do not claim recalculated dates when the cycle pull failed
