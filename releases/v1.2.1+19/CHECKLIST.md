@@ -60,7 +60,7 @@ Backend: **production** (`nuwqxlhuxwgevxvsyusj`) · Date: 2026-08-10
       `is_active = true`, `force_update = false`. Older android and web rows
       (builds 18, 16, 15) set `is_active = false` so exactly one row per
       platform is current; the pre-existing windows rows were left untouched.
-- [ ] Git tag `v1.2.1+19` pushed
+- [x] Git tag `v1.2.1+19` pushed (app repo `master`, commit `aa56ee5`)
 
 ## e2e / smoke (sign-off)
 
