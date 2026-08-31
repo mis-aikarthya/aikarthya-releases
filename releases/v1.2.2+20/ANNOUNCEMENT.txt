@@ -1,0 +1,31 @@
+*Good Evening Team,*
+
+We are excited to share that *v1.2.2+20 is now live* with some of our biggest features yet. This update introduces:
+
+🤖 *Aikarthya Agent (Web)* — Your own AI assistant, right inside the app. Console users will see the Agent bubble on the App/Home — open it to ask questions about your schools, observations and reports in plain language. Programme Facilitators additionally get a dedicated *Aikarthya Agent* chat from the Quick Actions on their Home page.
+
+📝 *Leave Management* — Applying for leave is now smarter: select your leave type, half-day or full day, and see your available balance in real time. Management gets a full Leave Settings page, approval workflow with remarks, and a new Office Holidays calendar.
+
+⚡ *Quick Actions for STF Fellows & Facilitators* — Mark attendance, apply for leave, and manage rosters from a new Quick Actions section on the Home page.
+
+📊 *Cycle End Reporting* — The complete Cycle End report pipeline: template builder with rich text editing, preview before sharing, and AI-assisted report text generation for a faster, smoother reporting experience.
+
+⚙️ *Reporting AI Settings* — Management can now configure which AI model each workflow uses, including the Aikarthya Agent, from the Settings page under Reports.
+
+🏛️ *School Closures* — Log closures as date ranges (not just single days) and mark SA/FA exam kinds directly.
+
+Please update immediately from the links below:
+
+🤖 *Android Users:* https://drive.google.com/drive/folders/1bd10IYsb1sS2KEzdrpnCl4VkXOHPsl6Q
+
+💻 *Web / PWA Users:* https://app-aikarthya.org.in/
+
+*Important Reminders:*
+
+- The Aikarthya Agent is available on Web/PWA only for now — Android users will see it in a future update.
+- Your offline data will be preserved during the update.
+- Continue your daily check-ins and check-outs at your registered location — the app will confirm your active location in the notification bar.
+
+If you encounter any issues during installation or while using the app, please reach out immediately.
+
+Thank you for your cooperation. 🙏"
