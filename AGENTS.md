@@ -26,6 +26,17 @@
 - `v1.0.5/` contains two APKs (`..._V1.0.5.apk` and `..._V1.0.5_build6.apk`) from before
   the build-number naming convention existed — both are kept for history; do not delete
   either without checking which one `app_versions.download_url` actually points to.
+- **Web-only releases** (v1.2.2+20, 02-Sep-2026): an operator may order a web-only
+  update (no APK/Windows). Steps: build `flutter build web --release --base-href /
+  --dart-define=APP_ENV=production` from the app working tree, `npx wrangler pages deploy
+  build/web --project-name=app-aikarthya --branch=main --commit-dirty=true` (Production
+  is wired to branch `main`; omitting the flag routes to Preview and prod stays stale),
+  then flip the `app_versions` web row on prod (deactivate the old build, insert the new
+  one; data-only write, still respect the schema window for hygiene). **Build from the
+  working tree, not a clean checkout**: committed `master` has repeatedly not compiled on
+  its own while font/theme migrations sit uncommitted (the google_fonts→bundled-fonts
+  change was still uncommitted at v1.2.2+20), so a clean-worktree build fails until that
+  work is committed.
 - **Version bump rule** (user-confirmed 03-Jul-2026): each release increments the patch
   by 1 (`1.1.0+15` -> `1.1.1+16`); when the patch reaches 9, the next release rolls the
   minor and resets the patch to 0 (`1.1.9` -> `1.2.0`), never skipping a minor (NOT
