@@ -37,6 +37,14 @@
   its own while font/theme migrations sit uncommitted (the google_fonts→bundled-fonts
   change was still uncommitted at v1.2.2+20), so a clean-worktree build fails until that
   work is committed.
+  **Exception (11-Sep-2026 web hotfix):** when the working tree holds *unreleased*
+  feature work, that work must stay out of the build. Check first: grep the live
+  `https://app.aikarthya.org.in/main.dart.js` for strings from the dirty diff. If the work
+  isn't live, build from a clean `git worktree` at HEAD, and copy in the untracked
+  `assets/fonts/`, the uncommitted `lib/core/theme/app_theme.dart`, and all `.env*` files.
+  Also swap the one remaining `GoogleFonts.*` call in `cycle_end/.../report_block_view.dart`
+  for `TextStyle(fontFamily: ...)` in the worktree only. Then build from pwsh, because
+  Git Bash rewrites `--base-href /` to `C:/Program Files/Git/`.
 - **Version bump rule** (user-confirmed 03-Jul-2026): each release increments the patch
   by 1 (`1.1.0+15` -> `1.1.1+16`); when the patch reaches 9, the next release rolls the
   minor and resets the patch to 0 (`1.1.9` -> `1.2.0`), never skipping a minor (NOT
